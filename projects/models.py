@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-class ProjectsView(models.Model):
+class ProjectsModels(models.Model):
     id = models.AutoField(primary_key = True)
     names = models.CharField(max_length=60, verbose_name='项目名称', help_text='项目名称')
     leader = models.CharField(max_length=100, verbose_name='项目负责人', help_text='项目负责人')
