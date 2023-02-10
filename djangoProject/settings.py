@@ -38,8 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # django子类
     'rest_framework',
+    # 子应用
     'projects',
+    'apps',
     'interfaces',
 ]
 
