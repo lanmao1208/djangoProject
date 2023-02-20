@@ -12,3 +12,9 @@ class ProjectsModels(models.Model):
     desc = models.TextField(verbose_name='项目简介', help_text='项目简介', default='暂无简介', blank=True, null=True)
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间', help_text='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间', help_text='更新时间')
+
+    class Meta:
+        db_table = 'tb_projects'
+        verbose_name = '项目信息'
+        # 数据库模型类的复数，apple -> apples
+        verbose_name_plural = verbose_name
