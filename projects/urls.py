@@ -17,6 +17,6 @@ from projects import views
 from django.urls import path
 
 urlpatterns = [
-		path('Projects/',views.ProjectsView.as_view()),
-		path('Projects/<int:pk>/',views.ProjectsDetailView.as_view()),
+		path('projects/',views.ProjectsView.as_view()),
+		path('projects/<int:pk>/',views.ProjectsDetailView.as_view()),
 	]

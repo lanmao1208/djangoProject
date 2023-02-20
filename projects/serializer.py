@@ -19,4 +19,22 @@ class ProjectsSerializer(serializers.ModelSerializer):
         model = ProjectsModels
         fields = '__all__'
 
+    def create(self, validated_data):
+        return ProjectsModels.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        """
+        更新所有非read_only字段
+        :param instance:
+        :param validated_data:
+        :return:
+        """
+        instance.name = validated_data.get('name') or instance.name
+        instance.leader = validated_data.get('leader') or instance.leader
+        instance.tester = validated_data.get('tester') or instance.tester
+        instance.programmer = validated_data.get('programmer') or instance.programmer
+        instance.desc = validated_data.get('desc') or instance.desc
+        instance.save()
+        return instance
+
 
