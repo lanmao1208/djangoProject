@@ -13,8 +13,9 @@ from rest_framework import validators
 
 
 class ProjectsSerializer(serializers.ModelSerializer):
-    names =serializers.CharField(max_length=60, min_length=2, label='项目名称', help_text='项目名称',
-                                 validators=[validators.UniqueValidator(queryset=ProjectsModels.objects.all(),message='该项目已存在')])
+    # 对于时间进行格式化
+    create_time = serializers.DateTimeField(format = "%Y-%m-%d %H:%M:%S", required = False)
+    update_time = serializers.DateTimeField(format = "%Y-%m-%d %H:%M:%S", required = False)
     class Meta:
         model = ProjectsModels
         fields = '__all__'

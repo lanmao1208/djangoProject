@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # django子类
     'rest_framework',
+    # 'django_filters',
     # 子应用
     'projects',
     'apps',
@@ -62,7 +63,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': False,
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -132,7 +133,7 @@ STATIC_URL = '/static/'
 
 # 在全局配置文件settings.py文件中的REST_FRAMEWORK字典里修改DRF框架的配置
 REST_FRAMEWORK = {
-    'NON_FIELD_ERRORS_KEY': 'errors',
+    'NON_FIELD_ERRORS_KEY': 'errors'
 }
 
 # Default primary key field type

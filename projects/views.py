@@ -1,43 +1,35 @@
 from django.shortcuts import render
 from django.views import View
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
 from .models import ProjectsModels
 from .serializer import ProjectsSerializer
 from django.http import JsonResponse
 import json
 # Create your views here.
 
-class ProjectsView(View):
+class ProjectsView(APIView):
 
     def get(self, request):
         qs = ProjectsModels.objects.all()
         pro_obj = ProjectsSerializer(instance=qs, many=True)
-        return JsonResponse(pro_obj.data, status=200, safe=False)
+        return Response(pro_obj.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         msg = {}
-        print(request)
-        pro_data = request.body
-
-        try:
-            pro_create_date = json.loads(pro_data)
-        except Exception as e:
-            print(e)
-            msg["message"] = e
-            msg["code"] = 1
-            return JsonResponse(msg, status=204)
-
-        pro_obj = ProjectsSerializer(data=pro_create_date)
+        pro_obj = ProjectsSerializer(data=request.data)
         try:
             pro_obj.is_valid(raise_exception=True)
         except Exception as e:
             msg["message"] = e
             msg["code"] = 1
-            return JsonResponse(msg, status=204)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         pro_obj.save()
         msg.update(pro_obj.data)
-        return JsonResponse(msg, status=200)
+        return Response(msg, status=status.HTTP_201_CREATED)
 
-class ProjectsDetailView(View):
+class ProjectsDetailView(APIView):
     def get(self, request, pk):
         msg = {}
         try:
@@ -45,31 +37,30 @@ class ProjectsDetailView(View):
         except Exception as e:
             msg["message"] = e
             msg["code"] = 1
-            return JsonResponse(msg, status=204)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
         pro_obj = ProjectsSerializer(instance=qs)
         msg.update(pro_obj.data)
-        return JsonResponse(msg, status=200)
+        return Response(msg, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
         msg = {}
         try:
             qs = ProjectsModels.objects.get(pk)
-            pro_update_data = json.loads(request.body)
         except Exception as e:
             msg["message"] = e
             msg["code"] = 1
-            return JsonResponse(msg, status=204)
-        pro_obj = ProjectsSerializer(instance=qs, data=pro_update_data)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        pro_obj = ProjectsSerializer(instance=qs, data=request.data)
         try:
             pro_obj.is_valid(raise_exception=True)
         except Exception as e:
             msg["message"] = e
             msg["code"] = 1
-            return JsonResponse(msg, status=204)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         pro_obj.save()
         msg.update(pro_obj.data)
-        return JsonResponse(msg, status=200)
+        return Response(msg, status=status.HTTP_201_CREATED)
 
     def delete(self,request, pk):
         msg = {}
@@ -78,8 +69,8 @@ class ProjectsDetailView(View):
         except Exception as e:
             msg["message"] = e
             msg["code"] = 1
-            return JsonResponse(msg, status=204)
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
         qs.delete()
         msg["message"] = "删除成功"
         msg["code"] = 0
-        return JsonResponse(msg, status=201)
+        return Response(msg, status=status.HTTP_204_NO_CONTENT)
