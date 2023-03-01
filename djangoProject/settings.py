@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # django子类
     'rest_framework',
-    # 'django_filters',
+    'django_filters',
     # 子应用
     'projects',
     'apps',
@@ -133,7 +133,11 @@ STATIC_URL = '/static/'
 
 # 在全局配置文件settings.py文件中的REST_FRAMEWORK字典里修改DRF框架的配置
 REST_FRAMEWORK = {
-    'NON_FIELD_ERRORS_KEY': 'errors'
+    'NON_FIELD_ERRORS_KEY': 'errors',
+    'DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend'],
+    # 为了灵活使用分页功能,可以使用重写然后使用的方法
+    'DEAUTLT_PAGINATION_CLASS': 'utils.pagination.MyPagination'
+    # 'DEAUTLT_PAGINATION_CLASS': 'rest_framework.pagination.pageNumberPagination'
 }
 
 # Default primary key field type

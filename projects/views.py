@@ -1,76 +1,58 @@
-from django.shortcuts import render
-from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import GenericAPIView
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter
 from .models import ProjectsModels
 from .serializer import ProjectsSerializer
-from django.http import JsonResponse
-import json
+
 # Create your views here.
 
-class ProjectsView(APIView):
+class ProjectsView(GenericAPIView):
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['id', 'name']
+    ordering_fields = ['id', 'name']
+
+    queryset = ProjectsModels.objects.all()
+    serializer_class = ProjectsSerializer
 
     def get(self, request):
-        qs = ProjectsModels.objects.all()
-        pro_obj = ProjectsSerializer(instance=qs, many=True)
-        return Response(pro_obj.data, status=status.HTTP_200_OK)
+        qs = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(qs)
+        if page is not None:
+            pro_obj = self.get_serializer(instance=qs, many=True)
+            return self.get_paginated_response(pro_obj.data)
+
 
     def post(self, request):
-        msg = {}
-        pro_obj = ProjectsSerializer(data=request.data)
-        try:
-            pro_obj.is_valid(raise_exception=True)
-        except Exception as e:
-            msg["message"] = e
-            msg["code"] = 1
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        pro_obj = self.get_serializer(data=request.data)
+        pro_obj.is_valid(raise_exception=True)
         pro_obj.save()
-        msg.update(pro_obj.data)
-        return Response(msg, status=status.HTTP_201_CREATED)
+        return Response(pro_obj.data, status=status.HTTP_201_CREATED)
 
-class ProjectsDetailView(APIView):
+class ProjectsDetailView(GenericAPIView):
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['id', 'name']
+    ordering_fields = ['id', 'name']
+
+    queryset = ProjectsModels.objects.all()
+    serializer_class = ProjectsSerializer
+
+
     def get(self, request, pk):
-        msg = {}
-        try:
-            qs = ProjectsModels.objects.get(pk)
-        except Exception as e:
-            msg["message"] = e
-            msg["code"] = 1
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
-
+        qs = self.get_object()
         pro_obj = ProjectsSerializer(instance=qs)
-        msg.update(pro_obj.data)
-        return Response(msg, status=status.HTTP_200_OK)
+        return Response(pro_obj.data, status=status.HTTP_200_OK)
 
     def put(self, request, pk):
-        msg = {}
-        try:
-            qs = ProjectsModels.objects.get(pk)
-        except Exception as e:
-            msg["message"] = e
-            msg["code"] = 1
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        qs = self.get_object()
         pro_obj = ProjectsSerializer(instance=qs, data=request.data)
-        try:
-            pro_obj.is_valid(raise_exception=True)
-        except Exception as e:
-            msg["message"] = e
-            msg["code"] = 1
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        pro_obj.is_valid(raise_exception=True)
         pro_obj.save()
-        msg.update(pro_obj.data)
-        return Response(msg, status=status.HTTP_201_CREATED)
+        return Response(pro_obj.data, status=status.HTTP_201_CREATED)
 
     def delete(self,request, pk):
-        msg = {}
-        try:
-            qs = ProjectsModels.objects.get(pk)
-        except Exception as e:
-            msg["message"] = e
-            msg["code"] = 1
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+        qs = self.get_object()
         qs.delete()
-        msg["message"] = "删除成功"
-        msg["code"] = 0
-        return Response(msg, status=status.HTTP_204_NO_CONTENT)
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
