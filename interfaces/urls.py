@@ -17,6 +17,13 @@ from interfaces import views
 from django.urls import path
 
 urlpatterns = [
-		path('interfaces/',views.InterfacesView.as_view()),
-		path('interfaces/<int:pk>/',views.InterfacesView.as_view()),
+		path('interfaces/',views.InterfacesViewSet.as_view({
+			'get': 'list',
+			'post': 'create'
+		})),
+		path('interfaces/<int:pk>/',views.InterfacesViewSet.as_view({
+			'get': 'retrieve',
+			'put': 'update',
+			'delete':'destroy'
+		})),
 	]

@@ -17,6 +17,13 @@ from projects import views
 from django.urls import path
 
 urlpatterns = [
-		path('projects/',views.ProjectsView.as_view()),
-		path('projects/<int:pk>/',views.ProjectsDetailView.as_view()),
+		path('projects/',views.ProjectsViewSet.as_view({
+			'get': 'list',
+			'post': 'create'
+		})),
+		path('projects/<int:pk>/',views.ProjectsViewSet.as_view({
+			'get': 'retrieve',
+			'put': 'update',
+			'delete':'destroy'
+		})),
 	]
