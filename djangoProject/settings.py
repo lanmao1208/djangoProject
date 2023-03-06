@@ -136,8 +136,10 @@ REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'errors',
     'DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend'],
     # 为了灵活使用分页功能,可以使用重写然后使用的方法
-    'DEAUTLT_PAGINATION_CLASS': 'utils.pagination.MyPagination'
-    # 'DEAUTLT_PAGINATION_CLASS': 'rest_framework.pagination.pageNumberPagination'
+    'DEFAULT_PAGINATION_CLASS': 'utils.pagination.MyPagination',
+
+    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.pageNumberPagination',
+    'PAGE_SIZE':2,
 }
 
 # Default primary key field type

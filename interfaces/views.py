@@ -9,7 +9,7 @@ from rest_framework.filters import OrderingFilter
 import json
 # Create your views here.
 class InterfacesView(GenericAPIView):
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+
     filterset_fields = ['id', 'name']
     ordering_fields = ['id', 'name']
 
@@ -20,8 +20,10 @@ class InterfacesView(GenericAPIView):
         qs = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(qs)
         if page is not None:
-            pro_obj = self.get_serializer(instance=qs, many=True)
-            return self.get_paginated_response(pro_obj.data)
+            inter_obj = self.get_serializer(instance=page, many=True)
+            return self.get_paginated_response(inter_obj.data)
+        inter_obj = self.get_serializer(instance=qs, many=True)
+        return Response(inter_obj.data)
 
     def post(self, request):
         inter_obj = self.get_serializer(data=request.data)
@@ -32,7 +34,7 @@ class InterfacesView(GenericAPIView):
 
 
 class InterfacesDetailView(GenericAPIView):
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
+
     filterset_fields = ['id', 'name']
     ordering_fields = ['id', 'name']
 

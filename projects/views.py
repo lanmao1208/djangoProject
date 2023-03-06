@@ -1,4 +1,3 @@
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
@@ -10,9 +9,9 @@ from .serializer import ProjectsSerializer
 # Create your views here.
 
 class ProjectsView(GenericAPIView):
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['id', 'name']
-    ordering_fields = ['id', 'name']
+    # filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['id', 'names']
+    ordering_fields = ['id', 'names']
 
     queryset = ProjectsModels.objects.all()
     serializer_class = ProjectsSerializer
@@ -21,8 +20,8 @@ class ProjectsView(GenericAPIView):
         qs = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(qs)
         if page is not None:
-            pro_obj = self.get_serializer(instance=qs, many=True)
-            return self.get_paginated_response(pro_obj.data)
+            pro_obj = self.get_serializer(instance=page, many=True)
+            return self.get_paginated_response(data=pro_obj.data)
 
 
     def post(self, request):
@@ -32,9 +31,9 @@ class ProjectsView(GenericAPIView):
         return Response(pro_obj.data, status=status.HTTP_201_CREATED)
 
 class ProjectsDetailView(GenericAPIView):
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['id', 'name']
-    ordering_fields = ['id', 'name']
+    # filter_backends = [DjangoFilterBackend, OrderingFilter]
+    filterset_fields = ['id', 'names']
+    ordering_fields = ['id', 'names']
 
     queryset = ProjectsModels.objects.all()
     serializer_class = ProjectsSerializer
