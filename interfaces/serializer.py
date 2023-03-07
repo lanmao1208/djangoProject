@@ -23,7 +23,7 @@ class InterfacesSerializer(serializers.ModelSerializer):
         :return:
         """
         instance.name = validated_data.get('name') or instance.name
-        instance.projectsid = validated_data.get('projectsid') or instance.projectsid
+        instance.projects_id = validated_data.get('projects_id') or instance.projects_id
         instance.tester = validated_data.get('tester') or instance.tester
         instance.desc = validated_data.get('desc') or instance.desc
         instance.save()
