@@ -6,7 +6,7 @@ from rest_framework import validators
 
 
 class InterfacesSerializer(serializers.ModelSerializer):
-    projectsid = ProjectsSerializer(label='所属项目信息', help_text='所属项目信息', read_only=True)
+    projects_id = ProjectsSerializer(label='所属项目信息', help_text='所属项目信息', read_only=True)
 
     class Meta:
         model = InterfacesModels

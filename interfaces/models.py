@@ -3,7 +3,7 @@ from django.db import models
 # Create your models here.
 class InterfacesModels(models.Model):
     id = models.AutoField(primary_key=True)
-    projectsid = models.ForeignKey('projects.ProjectsModels', on_delete=models.CASCADE,
+    projects = models.ForeignKey('projects.ProjectsModels', on_delete=models.CASCADE,
                                  verbose_name='所属项目', help_text='所属项目', related_name='interfaces')
     name = models.CharField(max_length=60, verbose_name='所属接口', help_text='所属接口')
     interfaces_states = models.CharField(max_length=5, verbose_name='接口状态', help_text='结束:0;进行中:1;暂停:2')
