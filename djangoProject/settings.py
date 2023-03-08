@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'projects',
     'apps',
     'interfaces',
+
+    # 外部插件
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
