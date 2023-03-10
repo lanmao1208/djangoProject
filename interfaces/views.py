@@ -5,8 +5,8 @@ from rest_framework import viewsets
 
 
 class InterfacesViewSet(viewsets.ModelViewSet):
-    filterset_fields = ['id', 'name', 'projects']
-    ordering_fields = ['id', 'name', 'projects']
+    filterset_fields = ['id', 'name', 'apps']
+    ordering_fields = ['id', 'name', 'apps']
 
     queryset = InterfacesModels.objects.all()
     serializer_class = InterfacesSerializer
