@@ -16,14 +16,11 @@ Including another URLconf
 from interfaces import views
 from django.urls import path
 
-urlpatterns = [
-		path('interfaces/',views.InterfacesViewSet.as_view({
-			'get': 'list',
-			'post': 'create'
-		})),
-		path('interfaces/<int:pk>/',views.InterfacesViewSet.as_view({
-			'get': 'retrieve',
-			'put': 'update',
-			'delete':'destroy'
-		})),
-	]
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
+router.register(r'apps', views.InterfacesViewSet)
+
+urlpatterns = []
+
+urlpatterns += router.urls
