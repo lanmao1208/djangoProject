@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'projects',
     'apps',
     'interfaces',
+    'users',
 
     # 外部插件
     'drf_yasg',
@@ -138,12 +139,20 @@ STATIC_URL = '/static/'
 # 在全局配置文件settings.py文件中的REST_FRAMEWORK字典里修改DRF框架的配置
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'errors',
-    'DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend', 'rest_framework.filters.OrderingFilter'],
     # 为了灵活使用分页功能,可以使用重写然后使用的方法
     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.MyPagination',
 
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.pageNumberPagination',
-    'PAGE_SIZE':2,
+    'PAGE_SIZE': 2,
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication'
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        # 'rest_framework.permissions.AllowAny'
+        'rest_framework.permissions.IsAuthenticated'
+    ],
 }
 
 # Default primary key field type
