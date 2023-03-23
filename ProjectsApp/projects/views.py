@@ -4,6 +4,7 @@ from apps.models import AppsModels
 from .serializer import ProjectsSerializer, ProjectsNameSerializer, ProjectsToInterfaces
 from rest_framework.decorators import action
 from rest_framework.response import Response
+import rest_framework_jwt
 
 
 # Create your views here.

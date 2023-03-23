@@ -43,5 +43,6 @@ urlpatterns = [
     path('', include('projects.urls')),
     path('', include('interfaces.urls')),
 	path('', include('apps.urls')),
+	path('users/', include('users.urls')),
 ]
 
