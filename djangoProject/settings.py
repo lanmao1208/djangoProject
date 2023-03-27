@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+import datetime
 from pathlib import Path
 import os
 import sys
@@ -164,4 +164,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER':
         'utils.jwt_handle.jwt_response_payload_handler',
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
 }

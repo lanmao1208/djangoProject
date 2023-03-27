@@ -16,7 +16,12 @@ Including another URLconf
 
 from django.urls import path
 from rest_framework_jwt.views import obtain_jwt_token
+from . import views
+
+
 
 urlpatterns = [
     path('login/', obtain_jwt_token),
+    path('register/', views.RegisterUserView.as_view()),
+    path('register_user/', views.RegisterGetTokenViewSet.as_view({'post': 'create'}))
                ]
