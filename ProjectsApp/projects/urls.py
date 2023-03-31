@@ -19,5 +19,7 @@ from rest_framework.routers import DefaultRouter,SimpleRouter
 
 routers = DefaultRouter()
 routers.register(r'projects', views.ProjectsViewSet)
-urlpatterns = []
+urlpatterns = [
+    # path('envs/names/', views.ProjectsViewSet.as_view({'get': 'name'}))
+]
 urlpatterns += routers.urls

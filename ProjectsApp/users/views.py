@@ -36,3 +36,26 @@ class RegisterUserView(APIView):
         user_obj.is_valid(raise_exception=True)
         user_obj.save()
         return Response(user_obj.data, status=status.HTTP_201_CREATED)
+
+
+class UserNameIsExistedView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, username):
+        usercount = User.objects.filter(username=username).count()
+        user_dict = {
+            'username': username,
+            'count': usercount
+        }
+        return Response(user_dict)
+
+class EmailIsExistedView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, email):
+        emailcount = User.objects.filter(email=email).count()
+        email_dict = {
+            'username': email,
+            'count': emailcount
+        }
+        return Response(email_dict)

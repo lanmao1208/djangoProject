@@ -33,6 +33,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -55,6 +57,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -139,7 +142,8 @@ STATIC_URL = '/static/'
 # 在全局配置文件settings.py文件中的REST_FRAMEWORK字典里修改DRF框架的配置
 REST_FRAMEWORK = {
     'NON_FIELD_ERRORS_KEY': 'errors',
-    'DEFAULT_FILTER_BACKENDS':['django_filters.rest_framework.DjangoFilterBackend', 'rest_framework.filters.OrderingFilter'],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend',
+                                'rest_framework.filters.OrderingFilter'],
     # 为了灵活使用分页功能,可以使用重写然后使用的方法
     'DEFAULT_PAGINATION_CLASS': 'utils.pagination.MyPagination',
 
@@ -162,7 +166,13 @@ REST_FRAMEWORK = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 JWT_AUTH = {
-    'JWT_RESPONSE_PAYLOAD_HANDLER':
-        'utils.jwt_handle.jwt_response_payload_handler',
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'utils.jwt_handle.jwt_response_payload_handler',
     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
 }
+# 指定能够访问后端接口的ip或域名列表
+CORS_ORIGIN_WHITELIST = [
+                'http://127.0.0.1:8082',
+                'http://localhost:8082',
+            ]
+
+CORS_ALLOW_CREDENTIALS = True
