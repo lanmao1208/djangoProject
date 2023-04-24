@@ -46,9 +46,15 @@ INSTALLED_APPS = [
     'django_filters',
     # 子应用
     'projects',
-    'apps',
+    # 'apps',
     'interfaces',
     'users',
+    'configures',
+    'debugtalks',
+    'envs',
+    'reports',
+    'testcases',
+    'testsuits',
 
     # 外部插件
     'drf_yasg',
@@ -155,8 +161,8 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication'
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.AllowAny'
-        'rest_framework.permissions.IsAuthenticated'
+        'rest_framework.permissions.AllowAny'
+        # 'rest_framework.permissions.IsAuthenticated'
     ],
 }
 
@@ -176,3 +182,61 @@ CORS_ORIGIN_WHITELIST = [
             ]
 
 CORS_ALLOW_CREDENTIALS = True
+
+LOGGING = {
+            # 版本号
+            'version': 1,
+            # 指定是否禁用已经存在的日志器,设置为True则禁用
+            'disable_existing_loggers': False,
+            # 日志的显示格式：formatters
+            'formatters': {
+                # simple为简化版格式的日志
+                'simple': {
+                    # 产生时间:asctime; 日志等级:levelname; msg:自定义;
+                    'format': '%(asctime)s - [%(levelname)s] - [msg]%(message)s'
+                },
+                # verbose为详细格式的日志
+                'verbose': {
+                    # 产生错误的文件:filename; 产生错误的行数:lineno
+                    'format': '%(asctime)s - [%(levelname)s] - %(name)s - [msg]%(message)s - [%(filename)s:%(lineno)d ]'
+                },
+            },
+            # filters指定日志过滤器
+            'filters': {
+                'require_debug_true': {
+                    '()': 'django.utils.log.RequireDebugTrue',
+                },
+            },
+            # handlers指定日志输出渠道
+            'handlers': {
+                # console指定输出到控制台
+                'console': {
+                    'level': 'DEBUG',
+                    # 日志过滤器中指定
+                    'filters': ['require_debug_true'],
+                    'class': 'logging.StreamHandler',
+                    'formatter': 'simple'
+                },
+                # file指定输出到日志,保存到日志文件
+                'file': {
+                    'level': 'DEBUG',
+                    # RotatingFileHandler轮转日志(设定日志个数和大小,到达限制后自动删除最早文件)
+                    'class': 'logging.handlers.RotatingFileHandler',
+                    # 指定存放日志文件的所处路径
+                    # 日志文件的位置(linux中可以使用var/log取代BASE_DIR进行拼接)
+                    'filename': os.path.join(BASE_DIR, 'ProjectErrorLog/Loggers.log'),
+                    'maxBytes': 100 * 1024 * 1024,  # 日志存储最大空间(100MB)
+                    'backupCount': 10,  # 最大日志个数(10)
+                    'formatter': 'verbose',
+                    'encoding': 'utf-8'
+                },
+            },
+            # 定义日志器
+            'loggers': {
+                'ProjectErrorLog': {  # 定义了一个名为ProjectErrorLog的日志器
+                    'handlers': ['console', 'file'],
+                    'propagate': True,
+                    'level': 'DEBUG',  # 日志器接收的最低日志级别
+                },
+            }
+        }

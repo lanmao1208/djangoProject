@@ -38,15 +38,15 @@ class ProjectsNameSerializer(serializers.ModelSerializer):
         model = ProjectsModels
         fields = ('id', 'names')
 
-class InterfacesToProSerializer(serializers.ModelSerializer):
+class InterfacesToProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterfacesModels
         fields = ('id', 'name')
 
-class ProjectsToInterfaces(serializers.ModelSerializer):
+class ProjectToInterfacesSerializer(serializers.ModelSerializer):
 
-    interfaces = InterfacesToProSerializer(many=True, read_only=True)
+    interfaces = InterfacesToProjectSerializer(many=True, read_only=True)
 
     class Meta:
         model = ProjectsModels
