@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include, re_path
 from drf_yasg.views import get_schema_view
+from rest_framework import permissions
 from drf_yasg import openapi
 
 schema_view = get_schema_view(
@@ -28,7 +29,7 @@ schema_view = get_schema_view(
 		license=openapi.License(name="BSD Lincense")
 	),
 	public=True,
-	# permissoin_classes=(permissoin.AllowAny,),  # 权限类
+	permission_classes=(permissions.AllowAny,),  # 权限类
 )
 
 

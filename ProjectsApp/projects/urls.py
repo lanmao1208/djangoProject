@@ -15,11 +15,11 @@ Including another URLconf
 """
 from projects import views
 from django.urls import path
-from rest_framework.routers import DefaultRouter,SimpleRouter
+from rest_framework.routers import DefaultRouter
 
 routers = DefaultRouter()
 routers.register(r'projects', views.ProjectsViewSet)
 urlpatterns = [
-    # path('envs/names/', views.ProjectsViewSet.as_view({'get': 'name'}))
+    path('projects/names/', views.ProjectsViewSet.as_view({'get': 'names'}))
 ]
 urlpatterns += routers.urls
