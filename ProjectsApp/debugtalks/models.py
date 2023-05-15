@@ -3,7 +3,7 @@ from django.db import models
 from utils.base_models import BaseModel
 
 
-class DebugTalks(BaseModel):
+class DebugTalksModels(BaseModel):
     id = models.AutoField(verbose_name='id主键', primary_key=True, help_text='id主键')
     name = models.CharField('debugtalk文件名称', max_length=200, default='debugtalk.py', help_text='debugtalk文件名称')
     debugtalk = models.TextField(null=True, default='#debugtalk.py', help_text='debugtalk.py文件')

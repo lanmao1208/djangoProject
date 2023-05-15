@@ -15,3 +15,7 @@ class InterfacesViewSet(viewsets.ModelViewSet):
     @action(methods=['get'], detail=False)
     def names(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        # 需要获取用例总数和配置总数
+        pass

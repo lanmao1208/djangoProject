@@ -3,7 +3,7 @@ from django.db import models
 from utils.base_models import BaseModel
 
 
-class Testcases(BaseModel):
+class TestcasesModels(BaseModel):
     id = models.AutoField(verbose_name='id主键', primary_key=True, help_text='id主键')
     name = models.CharField('用例名称', max_length=50, unique=True, help_text='用例名称')
     interface = models.ForeignKey('interfaces.InterfacesModels', on_delete=models.CASCADE, related_name='testcases',

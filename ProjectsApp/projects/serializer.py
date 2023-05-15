@@ -2,6 +2,7 @@ from rest_framework import serializers
 from projects.models import ProjectsModels
 from utils import common
 from interfaces.models import InterfacesModels
+from debugtalks.models import DebugTalksModels
 
 
 class ProjectsSerializer(serializers.ModelSerializer):
@@ -11,16 +12,20 @@ class ProjectsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProjectsModels
-        fields = ('id', 'name', 'leader', 'tester', 'create_time')
+        # fields = '__all__'
+        # fields = ('id', 'name', 'leader', 'tester', 'create_time', 'programmer')
+        exclude = ('update_time',)
         extra_kwargs = {
             'create_time': {
-                'read_only': False,
+                'read_only': True,
                 'format': common.datetime_fmt()
             }
         }
 
     def create(self, validated_data):
-        return ProjectsModels.objects.create(**validated_data)
+        project = super().create(validated_data)
+        DebugTalksModels.objects.create(project=project)
+        return project
 
     def update(self, instance, validated_data):
         """

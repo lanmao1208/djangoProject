@@ -3,7 +3,7 @@ from django.db import models
 from utils.base_models import BaseModel
 
 
-class Envs(BaseModel):
+class EnvsModels(BaseModel):
     id = models.AutoField(verbose_name='id主键', primary_key=True, help_text='id主键')
     name = models.CharField(verbose_name='环境名称', max_length=200, unique=True, help_text='环境名称')
     base_url = models.URLField(verbose_name='请求base url', max_length=200, help_text='请求base url')

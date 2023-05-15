@@ -3,7 +3,7 @@ from django.db import models
 from utils.base_models import BaseModel
 
 
-class Reports(BaseModel):
+class ReportsModels(BaseModel):
     id = models.AutoField(verbose_name='id主键', primary_key=True, help_text='id主键')
     name = models.CharField('报告名称', max_length=200, unique=True, help_text='报告名称')
     result = models.BooleanField('执行结果', default=1, help_text='执行结果')   # 1为成功, 0为失败

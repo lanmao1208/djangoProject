@@ -3,7 +3,7 @@ from django.db import models
 from utils.base_models import BaseModel
 
 
-class Testsuits(BaseModel):
+class TestsuitsModels(BaseModel):
     id = models.AutoField(verbose_name='id主键', primary_key=True, help_text='id主键')
     name = models.CharField('套件名称', max_length=200, unique=True, help_text='套件名称')
     project = models.ForeignKey('projects.ProjectsModels', on_delete=models.CASCADE,

@@ -15,7 +15,7 @@ class MyPagination(PageNumberPagination):
     # 每页最多显示条数
     max_page_size = 50
 
-    # 重写父类方法
+
     def get_paginated_response(self, data):
         # 调用父类的get_paginated_response获取页数相关信息
         response = super().get_paginated_response(data)
@@ -23,7 +23,13 @@ class MyPagination(PageNumberPagination):
         response.data['current_page_num'] = self.page.number
         # 总计最大页数
         response.data['total_pages'] = self.page.paginator.num_pages
-        #
+        # 只在接口文档中生效
+        page_query_description = '第几页'
+        page_size_query_description = '每页几条'
+
+        return response
+
+        # # 重写父类方法,但是需要导入部分模块,较为繁琐不太推荐
         # current_page_num = self.page.number
         # total_pages = self.page.paginator.num_pages
 
@@ -35,4 +41,3 @@ class MyPagination(PageNumberPagination):
         #     ('current_page_num', current_page_num),
         #     ('total_pages', total_pages)
         # ]))
-        return response
