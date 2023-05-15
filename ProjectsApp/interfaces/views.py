@@ -1,7 +1,10 @@
 from .models import InterfacesModels
+from testcases.models import TestcasesModels
+from configures.models import ConfiguresModels
 from .serializer import InterfacesSerializer
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from django.db.models import Count
 # Create your views here.
 
 
@@ -18,4 +21,15 @@ class InterfacesViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         # 需要获取用例总数和配置总数
-        pass
+        response = super().list(request, *args, **kwargs)
+        result = response.data['results']
+        data_list = []
+        for item in result:
+            interface_id = item.get('id')
+            testcase_count = TestcasesModels.objects.filter(interface_id=interface_id).count()
+            configures_count = ConfiguresModels.objects.filter(interface_id=interface_id).count()
+            item['testcase'] = testcase_count
+            item['configures'] = configures_count
+            data_list.append(item)
+        response.data['results'] = data_list
+        return response

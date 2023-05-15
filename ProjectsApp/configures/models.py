@@ -3,7 +3,7 @@ from django.db import models
 from utils.base_models import BaseModel
 
 
-class Configures(BaseModel):
+class ConfiguresModels(BaseModel):
     id = models.AutoField(verbose_name='id主键', primary_key=True, help_text='id主键')
     name = models.CharField('配置名称', max_length=50, help_text='配置名称')
     interface = models.ForeignKey('interfaces.InterfacesModels',
