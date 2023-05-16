@@ -39,17 +39,17 @@ urlpatterns = [
 	path('swagger/', schema_view.with_ui('swagger',cache_timeout=0), name='schema-swagger-ui'),
 	path('redoc/', schema_view.with_ui('redoc',cache_timeout=0), name='schema-redoc'),
 	path('api/', include('rest_framework.urls')),
-
+	path('user/', include('users.urls')),
 
     path('', include('projects.urls')),
     path('', include('interfaces.urls')),
 	# path('', include('apps.urls')),
 	# path('', include('configures.urls')),
-	# path('', include('debugtalks.urls')),
+	path('', include('debugtalks.urls')),
 	path('', include('envs.urls')),
 	# path('', include('reports.urls')),
 	# path('', include('testcases.urls')),
 	# path('', include('testsuits')),
-	path('user/', include('users.urls')),
+
 ]
 

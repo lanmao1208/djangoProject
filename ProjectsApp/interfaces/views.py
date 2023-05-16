@@ -28,7 +28,7 @@ class InterfacesViewSet(viewsets.ModelViewSet):
             interface_id = item.get('id')
             testcase_count = TestcasesModels.objects.filter(interface_id=interface_id).count()
             configures_count = ConfiguresModels.objects.filter(interface_id=interface_id).count()
-            item['testcase'] = testcase_count
+            item['testcases'] = testcase_count
             item['configures'] = configures_count
             data_list.append(item)
         response.data['results'] = data_list
