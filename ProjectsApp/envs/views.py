@@ -5,13 +5,16 @@ from .serializer import EnvsSerializer, EnvsNameSerializer
 from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
+import logging
 # Create your views here.
+
+loggers = logging.getLogger('EnvErrorLog')
+
 
 class EnvsViewSet(ModelViewSet):
     queryset = EnvsModels.objects.all()
     serializer_class = EnvsSerializer
     # permission_classes = [permissions.IsAuthenticated]
-
 
     @action(methods=['get'], detail=False)
     def names(self, request, *args, **kwargs):
@@ -27,7 +30,6 @@ class EnvsViewSet(ModelViewSet):
         #     return EnvsNameSerializer
         # else:
         #     return self.serializer_class
-
 
         # 三元运算 可以缩减代码量
         return EnvsNameSerializer if self.action == 'names' else self.serializer_class

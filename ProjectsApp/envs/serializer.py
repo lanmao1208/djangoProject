@@ -13,7 +13,6 @@ class EnvsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = EnvsModels
-        # fields = ('id', 'name', 'base_url', 'create_time', 'desc', 'project', 'project_id')
         exclude = ('update_time',)
         extra_kwargs = {
             'create_time': {

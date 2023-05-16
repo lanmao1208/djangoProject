@@ -9,8 +9,6 @@ class ProjectsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProjectsModels
-        # fields = '__all__'
-        # fields = ('id', 'name', 'leader', 'tester', 'create_time', 'programmer')
         exclude = ('update_time',)
         extra_kwargs = {
             'create_time': {
@@ -46,11 +44,13 @@ class ProjectsNameSerializer(serializers.ModelSerializer):
         model = ProjectsModels
         fields = ('id', 'name')
 
+
 class InterfacesToProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterfacesModels
         fields = ('id', 'name')
+
 
 class ProjectToInterfacesSerializer(serializers.ModelSerializer):
 

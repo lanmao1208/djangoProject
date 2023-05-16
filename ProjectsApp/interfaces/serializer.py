@@ -13,7 +13,6 @@ class InterfacesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = InterfacesModels
-        # fields = ('id', 'name', 'tester', 'create_time', 'desc', 'project', 'project_id')
         exclude = ('update_time',)
         extra_kwargs = {
             'create_time': {

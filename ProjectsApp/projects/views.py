@@ -4,15 +4,13 @@ from testsuits.models import TestsuitsModels
 from interfaces.models import InterfacesModels
 from .serializer import ProjectsSerializer, ProjectsNameSerializer, ProjectToInterfacesSerializer
 from rest_framework.decorators import action
-from rest_framework.response import Response
 from django.db.models import Count
 import logging
-import rest_framework_jwt
-
-
 # Create your views here.
 
 loggers = logging.getLogger('ProjectErrorLog')
+
+
 class ProjectsViewSet(viewsets.ModelViewSet):
     queryset = ProjectsModels.objects.all()
     serializer_class = ProjectsSerializer
@@ -47,7 +45,6 @@ class ProjectsViewSet(viewsets.ModelViewSet):
             # 获取项目下套件总数
             testsuites_count = TestsuitsModels.objects.filter(project_id=project_id).count()
 
-
             item['interfaces'] = interfaces_count
             item['testcases'] = testcases_count
             item['testsuits'] = testsuites_count
@@ -58,8 +55,6 @@ class ProjectsViewSet(viewsets.ModelViewSet):
             response.data['results'] = data_list
 
         return response
-
-
 
     @action(methods=['get'], detail=False)
     def names(self, request, *args, **kwargs):

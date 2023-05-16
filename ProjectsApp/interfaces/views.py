@@ -4,8 +4,10 @@ from configures.models import ConfiguresModels
 from .serializer import InterfacesSerializer
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from django.db.models import Count
+import logging
 # Create your views here.
+
+loggers = logging.getLogger('InterfaceErrorLog')
 
 
 class InterfacesViewSet(viewsets.ModelViewSet):
