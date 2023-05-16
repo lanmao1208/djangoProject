@@ -20,6 +20,6 @@ from rest_framework.routers import DefaultRouter
 routers = DefaultRouter()
 routers.register(r'projects', views.ProjectsViewSet)
 urlpatterns = [
-    path('projects/names/', views.ProjectsViewSet.as_view({'get': 'names'}))
+    # path('projects/names/', views.ProjectsViewSet.as_view({'get': 'names'}))
 ]
 urlpatterns += routers.urls

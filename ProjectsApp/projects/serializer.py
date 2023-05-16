@@ -6,9 +6,6 @@ from debugtalks.models import DebugTalksModels
 
 
 class ProjectsSerializer(serializers.ModelSerializer):
-    # 对于时间进行格式化
-    create_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False)
-    update_time = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False)
 
     class Meta:
         model = ProjectsModels

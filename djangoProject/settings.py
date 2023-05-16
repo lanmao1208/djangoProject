@@ -147,7 +147,7 @@ STATIC_URL = '/static/'
 
 # 在全局配置文件settings.py文件中的REST_FRAMEWORK字典里修改DRF框架的配置
 REST_FRAMEWORK = {
-    'NON_FIELD_ERRORS_KEY': 'errors',
+    # 'NON_FIELD_ERRORS_KEY': 'errors',
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend',
                                 'rest_framework.filters.OrderingFilter'],
     # 为了灵活使用分页功能,可以使用重写然后使用的方法
@@ -240,3 +240,7 @@ LOGGING = {
                 },
             }
         }
+
+
+# 指定前端token值传递的前缀
+# JWT_AUTH_HEADER_PREFIX = 'JWT',
