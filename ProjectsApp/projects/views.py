@@ -71,7 +71,7 @@ class ProjectsViewSet(viewsets.ModelViewSet):
         # pro_obj = self.get_serializer(instance=qs, many=True)
         # loggers.debug(pro_obj.data)
         # return Response(pro_obj.data)
-        return self.retrieve(self, request, *args, **kwargs)
+        return self.retrieve(request, *args, **kwargs)
 
     def get_serializer_class(self):
         if self.action == 'names':

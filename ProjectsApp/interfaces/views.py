@@ -1,4 +1,5 @@
 from .models import InterfacesModels
+from projects.models import ProjectsModels
 from testcases.models import TestcasesModels
 from configures.models import ConfiguresModels
 from .serializer import InterfacesSerializer
@@ -30,8 +31,10 @@ class InterfacesViewSet(viewsets.ModelViewSet):
             interface_id = item.get('id')
             testcase_count = TestcasesModels.objects.filter(interface_id=interface_id).count()
             configures_count = ConfiguresModels.objects.filter(interface_id=interface_id).count()
+            item['project_id'] = item.get('project_id')
             item['testcases'] = testcase_count
             item['configures'] = configures_count
+
             data_list.append(item)
         response.data['results'] = data_list
         return response

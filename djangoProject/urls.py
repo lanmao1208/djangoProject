@@ -49,7 +49,7 @@ urlpatterns = [
 			path('', include('debugtalks.urls')),
 			path('', include('envs.urls')),
 			# path('', include('reports.urls')),
-			# path('', include('testcases.urls')),
+			path('', include('testcases.urls')),
 			path('', include('testsuits.urls'))
 ]
 

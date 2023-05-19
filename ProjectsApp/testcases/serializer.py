@@ -1,26 +1,18 @@
 from rest_framework import serializers
-from .models import TestsuitsModels
+from .models import TestcasesModels
 from projects.models import ProjectsModels
 from utils import common
 
 
-class TestsuitsSerializer(serializers.ModelSerializer):
-    project = serializers.StringRelatedField(label='所属项目信息', help_text='所属项目信息')
+class TestcasesSerializer(serializers.ModelSerializer):
+    # project = serializers.StringRelatedField(label='所属项目信息', help_text='所属项目信息')
     project_id = serializers.PrimaryKeyRelatedField(label='所属项目id', help_text='所属项目id',
                                                     queryset=ProjectsModels.objects.all())
 
     class Meta:
-        model = TestsuitsModels
-        fields = ('id', 'name', 'include', 'project', 'project_id', 'create_time', 'update_time')
+        model = TestcasesModels
+        fields = ('id', 'name', 'include', 'project_id', 'interface', 'author', 'request')
         extra_kwargs = {
-            'create_time': {
-                'read_only': True,
-                'format': common.datetime_fmt()
-            },
-            'update_time': {
-                'read_only': True,
-                'format': common.datetime_fmt()
-            },
             'include': {
                 'write_only': True
             }
@@ -49,10 +41,5 @@ class TestsuitsSerializer(serializers.ModelSerializer):
             return super().update(instance, validated_data)
 
 
-class TestsuitsReadSerializer(serializers.ModelSerializer):
-    project_id = serializers.PrimaryKeyRelatedField(label='所属项目id', help_text='所属项目id', queryset=ProjectsModels.objects.all())
 
-    class Meta:
-        model = TestsuitsModels
-        fields = ('name', 'include',  'project_id')
 
