@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.response import Response
 from .models import ProjectsModels
 from testsuits.models import TestsuitsModels
 from interfaces.models import InterfacesModels
@@ -58,7 +59,11 @@ class ProjectsViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=False)
     def names(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
+        # return self.list(request, *args, **kwargs)
+        # 避免分页操作,所以不用父类的list方法
+        qs = self.get_queryset()
+        serializer = self.get_serializer(qs, many=True)
+        return Response(serializer.data)
 
     @action(detail=True)
     def interfaces(self, request, *args, **kwargs):

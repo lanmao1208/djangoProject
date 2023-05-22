@@ -180,7 +180,8 @@ CORS_ORIGIN_WHITELIST = [
                 'http://127.0.0.1:8082',
                 'http://localhost:8082',
                 'http://192.168.66.226:8082',
-                # 'http://192.168.120.121:8082'
+                'http://192.168.120.121:8082',
+                'http://192.168.0.105:8082'
             ]
 
 CORS_ALLOW_CREDENTIALS = True
