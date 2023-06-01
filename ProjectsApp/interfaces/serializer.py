@@ -38,15 +38,33 @@ class InterfacesSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-class InterfacesToTestcasesSerializer(serializers.ModelSerializer):
-
+class TestcasesNameIdSerializer(serializers.ModelSerializer):
+    # 获取子表中指定pk值下所有的id和name
     class Meta:
         model = TestcasesModels
         fields = ('id', 'name')
 
 
-class InterfacesToConfiguresSerializer(serializers.ModelSerializer):
+class InterfacesToTestcasesByIdSerializer(serializers.ModelSerializer):
+    # 根据获取到的子表数据,使用设定的变量名作为key,导入的序列化器类作为value
+    # 按照外键关系建立对应关系,并使用设置的fields值进行过滤
+    testcases = TestcasesNameIdSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = InterfacesModels
+        fields = ('testcases',)
+
+
+class ConfiguresNameIdSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ConfiguresModels
         fields = ('id', 'name')
+
+
+class InterfacesToConfiguresByIdSerializer(serializers.ModelSerializer):
+    configures = ConfiguresNameIdSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = InterfacesModels
+        fields = ('configures',)

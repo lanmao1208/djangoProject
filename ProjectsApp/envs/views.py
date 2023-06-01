@@ -20,7 +20,8 @@ class EnvsViewSet(ModelViewSet):
     def names(self, request, *args, **kwargs):
         # 不需要分页
         qs = self.get_queryset()
-        return Response(self.get_serializer(qs, many=True).data)
+        data = self.get_serializer(qs, many=True).data
+        return Response(data)
         # 需要分页则使用父类方法
         # return self.list(request, *args, **kwargs)
 

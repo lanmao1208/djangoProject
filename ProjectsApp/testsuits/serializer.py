@@ -1,7 +1,29 @@
 from rest_framework import serializers
 from .models import TestsuitsModels
 from projects.models import ProjectsModels
+from interfaces.models import InterfacesModels
 from utils import common
+import re
+
+
+def validators_include(value):
+    # ^开头$结尾,\d+匹配一个或者多个字符的数字(1,11,111)
+    # (,\d+)匹配,','号后跟随的一个或者多个字符的数字,'*'号表示匹配多次
+    obj = re.match(r'^\[\d+(,\d+)*\]$', value)
+    if obj is None:
+        raise serializers.ValidationError('参数格式错误')
+    else:
+        # group():返回匹配全部内容
+        data_list = obj.group()
+
+        try:
+            data_list = eval(data_list)
+        except:
+            raise serializers.ValidationError('参数格式错误')
+        for item in data_list:
+            # exists()：如果数据库中请求的参数有值则返回True
+            if not InterfacesModels.objects.filter(id=item).exists():
+                raise serializers.ValidationError(f'接口id:{item}在数据库中未找到')
 
 
 class TestsuitsSerializer(serializers.ModelSerializer):
@@ -22,15 +44,9 @@ class TestsuitsSerializer(serializers.ModelSerializer):
                 'format': common.datetime_fmt()
             },
             'include': {
-                'write_only': True
+                'validators': [validators_include]
             }
         }
-
-    def validators_include(self, value):
-        if type(value) != list:
-            raise serializers.ValidationError('该字段必须为列表')
-        # ***该方法必须返回value值***
-        return value
 
     def create(self, validated_data):
         if 'project_id' in validated_data:

@@ -15,6 +15,7 @@ class TestsuitsViewSet(ModelViewSet):
     serializer_class = TestsuitsSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
+    # 也可以新增一个序列化类,参照debugtalk
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         data = {
@@ -23,24 +24,3 @@ class TestsuitsViewSet(ModelViewSet):
             'include': instance.include
         }
         return Response(data)
-
-    # @action(detail=True)
-    # def read(self, *args, **kwargs):
-    #     return self.retrieve(*args, **kwargs)
-
-    # @action(detail=True)
-    # def read(self, *args, **kwargs):
-    #     testsuit = self.retrieve(*args, **kwargs).data
-    #     data = {
-    #             'name': testsuit.name,
-    #             'project_id': testsuit.project_id,
-    #             'include': testsuit.include
-    #         }
-    #     return Response(data)
-    #
-    #
-    # def get_serializer_class(self):
-    #     if self.action == 'read':
-    #         return TestsuitsReadSerializer
-    #     else:
-    #         return self.serializer_class

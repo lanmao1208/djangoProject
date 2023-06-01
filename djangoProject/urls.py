@@ -44,11 +44,10 @@ urlpatterns = [
 			path('user/', include('users.urls')),
 			path('', include('projects.urls')),
 			path('', include('interfaces.urls')),
-			# path('', include('apps.urls')),
 			# path('', include('configures.urls')),
 			path('', include('debugtalks.urls')),
 			path('', include('envs.urls')),
-			# path('', include('reports.urls')),
+			path('', include('reports.urls')),
 			path('', include('testcases.urls')),
 			path('', include('testsuits.urls'))
 ]

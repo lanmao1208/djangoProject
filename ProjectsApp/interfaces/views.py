@@ -2,7 +2,7 @@ from .models import InterfacesModels
 from rest_framework.response import Response
 from testcases.models import TestcasesModels
 from configures.models import ConfiguresModels
-from .serializer import InterfacesSerializer, InterfacesToTestcasesSerializer, InterfacesToConfiguresSerializer
+from .serializer import InterfacesSerializer, InterfacesToTestcasesByIdSerializer, InterfacesToConfiguresByIdSerializer
 from rest_framework import viewsets
 from rest_framework.decorators import action
 import logging
@@ -35,24 +35,34 @@ class InterfacesViewSet(viewsets.ModelViewSet):
         response.data['results'] = data_list
         return response
 
-    @action(detail=False)
-    def testcase(self, request, *args, **kwargs):
-        instance = self.get_object()
-        test_obj = self.get_serializer(instance=instance)
-        testcases = test_obj.data['testcases']
-        return Response(testcases)
+    @action(methods=['get'], detail=True)
+    def testcases(self, request, *args, **kwargs):
+        # 自定义方法类
+        # instance = self.get_object()
+        # test_obj = self.get_serializer(instance=instance)
+        # testcases = test_obj.data['testcases']
+        # return Response(testcases)
+        # 拓展父类方法(推荐)
+        response = self.retrieve(request, *args, **kwargs)
+        response.data = response.data['testcases']
+        return response
 
-    @action(detail=False)
-    def configure(self, request, *args, **kwargs):
-        instance = self.get_object()
-        conf_obj = self.get_serializer(instance=instance)
-        configures = conf_obj.data['configures']
-        return Response(configures)
+    @action(methods=['get'], detail=True)
+    def configures(self, request, *args, **kwargs):
+        # 自定义方法类
+        # instance = self.get_object()
+        # conf_obj = self.get_serializer(instance=instance)
+        # configures = conf_obj.data['configures']
+        # return Response(configures)
+        # 拓展父类方法(推荐)
+        response = self.retrieve(request, *args, **kwargs)
+        response.data = response.data['configures']
+        return response
 
     def get_serializer_class(self):
-        if self.action == 'testcase':
-            return InterfacesToTestcasesSerializer
-        elif self.action == 'configure':
-            return InterfacesToConfiguresSerializer
+        if self.action == 'testcases':
+            return InterfacesToTestcasesByIdSerializer
+        elif self.action == 'configures':
+            return InterfacesToConfiguresByIdSerializer
         else:
             return self.serializer_class

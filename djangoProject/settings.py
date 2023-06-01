@@ -179,7 +179,7 @@ JWT_AUTH = {
 CORS_ORIGIN_WHITELIST = [
                 'http://127.0.0.1:8082',
                 'http://localhost:8082',
-                'http://192.168.66.226:8082',
+                'http://192.168.66.238:8082',
                 'http://192.168.120.121:8082',
                 'http://192.168.0.105:8082'
             ]
@@ -247,3 +247,6 @@ LOGGING = {
 
 # 指定前端token值传递的前缀
 # JWT_AUTH_HEADER_PREFIX = 'JWT',
+
+# 定义下载的报告的存放路径,变量名要大写
+REPORTS_DIR = os.path.join(BASE_DIR, 'reports')

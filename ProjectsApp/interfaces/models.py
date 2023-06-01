@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+
+
 class InterfacesModels(models.Model):
     id = models.AutoField(primary_key=True)
     project = models.ForeignKey('projects.ProjectsModels', on_delete=models.CASCADE,
@@ -11,7 +13,6 @@ class InterfacesModels(models.Model):
     desc = models.CharField(verbose_name='简要描述', max_length=200, null=True, blank=True, help_text='简要描述')
     create_time = models.DateTimeField(auto_now_add=True, verbose_name='创建时间', help_text='创建时间')
     update_time = models.DateTimeField(auto_now=True, verbose_name='更新时间', help_text='更新时间')
-
 
     class Meta:
         db_table = 'tb_interfaces'
