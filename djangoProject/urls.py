@@ -44,7 +44,7 @@ urlpatterns = [
 			path('user/', include('users.urls')),
 			path('', include('projects.urls')),
 			path('', include('interfaces.urls')),
-			# path('', include('configures.urls')),
+			path('', include('configures.urls')),
 			path('', include('debugtalks.urls')),
 			path('', include('envs.urls')),
 			path('', include('reports.urls')),

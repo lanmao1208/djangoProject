@@ -27,7 +27,8 @@ class ProjectsViewSet(viewsets.ModelViewSet):
         for item in result:
             project_id = item.get('id')
             # 获取指定项目下的所有接口的测试用例嵌套字典列表
-            interface_testcase_qs = InterfacesModels.objects.values('id').annotate(testcases=Count('testcases')).filter(project_id=project_id)
+            interface_testcase_qs = InterfacesModels.objects.values('id').annotate(testcases=Count('testcases'))\
+                .filter(project_id=project_id)
 
             # 获取项目下的接口总数
             interfaces_count = interface_testcase_qs.count()
@@ -38,7 +39,8 @@ class ProjectsViewSet(viewsets.ModelViewSet):
                 testcases_count += one_dict.get('testcases')
 
             # 获取项目下的配置总数
-            interface_configure_qs = InterfacesModels.objects.values('id').annotate(configures=Count('configures')).filter(project_id=project_id)
+            interface_configure_qs = InterfacesModels.objects.values('id').annotate(configures=Count('configures'))\
+                .filter(project_id=project_id)
             configures_count = 0
             for one_dict in interface_configure_qs:
                 configures_count += one_dict.get('configures')
