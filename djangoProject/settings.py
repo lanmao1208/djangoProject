@@ -250,3 +250,4 @@ LOGGING = {
 
 # 定义下载的报告的存放路径,变量名要大写
 REPORTS_DIR = os.path.join(BASE_DIR, 'reports')
+SUITES_DIR = os.path.join(BASE_DIR, 'suites')

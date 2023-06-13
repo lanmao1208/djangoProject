@@ -5,7 +5,7 @@ from utils import common
 
 class DebugTalksSerializer(serializers.ModelSerializer):
     # StringRelatedField包含默认属性read_only=True
-    project = serializers.StringRelatedField(label='所属项目信息', help_text='所属项目信息')
+    project = serializers.StringRelatedField(help_text='所属项目信息')
 
     class Meta:
         model = DebugTalksModels

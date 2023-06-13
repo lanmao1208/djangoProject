@@ -14,6 +14,7 @@ from .models import TestcasesModels
 from . import serializer
 from utils import handle_datas, common
 from interfaces.models import InterfacesModels
+from djangoProject.settings import SUITES_DIR
 from envs.models import EnvsModels
 # Create your views here.
 
@@ -30,7 +31,7 @@ class TestsuitsViewSet(ModelViewSet):
     #     result = response.data['results']
     #     date_list = []
     #     for item in result:
-    #         interface = list(InterfacesModels.objects.filter(id=item.get('interface')))[0]
+    #         interface = InterfacesModels.objects.filter(id=item.get('interface')).first()
     #         data = {
     #             'name': item.get('name'),
     #             'project': interface.project.name,
@@ -125,3 +126,29 @@ class TestsuitsViewSet(ModelViewSet):
             "teardownHooks": testcase_teardown_hooks_datas_list,
         }
         return Response(datas)
+
+    @action(methods=['post'], detail=True)
+    def run(self, request, *args, **kwargs):
+        # 取出并构造参数
+        instance = self.get_object()
+        # 生成yaml用例文件
+        # 运行用例(生成报告)
+        response = super().create(request, *args, **kwargs)
+        env_id = response.data.serializer.validated_data.get('env_id')
+        testcase_data_dir = os.path.join(SUITES_DIR, datetime.strftime(datetime.now(), '%Y%m%d%H%M%S%f'))
+        env = EnvsModels.objects.filter(id=env_id).first()
+
+        common.generate_testcase_file(instance, env, testcase_data_dir)
+
+    def get_serializer_class(self):
+        if self.action == 'run':
+            return serializer.TestcasesRunSerializer
+        else:
+            return self.serializer_class
+
+    def perform_create(self, serializer):
+        # 通过重写该方法,可以调用create方法帮助我们进行数据校验
+        if self.action == 'run':
+            pass
+        else:
+            serializer.save()
