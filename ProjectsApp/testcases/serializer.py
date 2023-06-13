@@ -1,63 +1,58 @@
 from rest_framework import serializers
-from .models import TestcasesModels
+from rest_framework import validators
+
 from projects.models import ProjectsModels
 from interfaces.models import InterfacesModels
-import re
-from utils import common
+from testcases.models import TestcasesModels
+from utils import common, validates
 
 
-def validators_include(value):
-    # ^开头$结尾,\d+匹配一个或者多个字符的数字(1,11,111)
-    # (,\d+)匹配,','号后跟随的一个或者多个字符的数字,'*'号表示匹配多次
-    obj = re.match(r'^\[\d+(,\d+)*\]$', value)
-    if obj is None:
-        raise serializers.ValidationError('参数格式错误')
-    else:
-        # group():返回匹配全部内容
-        data_list = obj.group()
+class InterfacesProjectsModelSerializer(serializers.ModelSerializer):
+    project = serializers.StringRelatedField(label='所属项目', help_text='所属项目')
+    pid = serializers.IntegerField(label='所属项目id', help_text='所属项目id', write_only=True,
+                                   validators=[validates.is_exised_project_id])
+    iid = serializers.IntegerField(label='所属接口id', help_text='所属接口id', write_only=True,
+                                   validators=[validates.is_exised_interface_id])
 
-        try:
-            data_list = eval(data_list)
-        except:
-            raise serializers.ValidationError('参数格式错误')
-        for item in data_list:
-            # exists()：如果数据库中请求的参数有值则返回True
-            if not InterfacesModels.objects.filter(id=item).exists():
-                raise serializers.ValidationError(f'接口id:{item}在数据库中未找到')
+    class Meta:
+        model = InterfacesModels
+        fields = ('name', 'pid', 'iid', 'project')
+
+    def validate(self, attrs):
+        pid = attrs.get('pid')
+        iid = attrs.get('iid')
+        if not InterfacesModels.objects.filter(id=iid, project_id=pid).exists():
+            raise serializers.ValidationError('所属项目id与接口id不匹配')
 
 
-class TestcasesSerializer(serializers.ModelSerializer):
-    project = serializers.StringRelatedField(label='所属项目信息', help_text='所属项目信息')
-    project_id = serializers.PrimaryKeyRelatedField(label='所属项目id', help_text='所属项目id', write_only=True,
-                                                    queryset=ProjectsModels.objects.all())
+class TestcasesModelSerializer(serializers.ModelSerializer):
+    interface = InterfacesProjectsModelSerializer(label='所属项目和接口', help_text='所属项目和接口')
 
     class Meta:
         model = TestcasesModels
-        # fields = ('id', 'name', 'include', 'project', 'project_id', 'interface', 'interface_id','author', 'request')
-        exclude = ('update_time',)
+        exclude = ('update_time', 'create_time')
+
         extra_kwargs = {
-            'include': {
+            'request': {
                 'write_only': True,
-                'validators': [validators_include]
-            }
+            },
         }
 
     def create(self, validated_data):
-        if 'project_id' in validated_data:
-            project = validated_data.pop('project_id')
-            validated_data['project'] = project
-            return super().create(validated_data)
-        else:
-            return super().create(validated_data)
+        iid = validated_data.pop('interface').get('iid')
+        validated_data['interface_id'] = iid
+        return super().create(validated_data)
 
     def update(self, instance, validated_data):
-        if 'project_id' in validated_data:
-            project = validated_data.pop('project_id')
-            validated_data['project'] = project
-            return super().update(instance, validated_data)
-        else:
-            return super().update(instance, validated_data)
+        iid = validated_data.pop('interface').get('iid')
+        validated_data['interface_id'] = iid
+        return super().update(instance, validated_data)
 
 
+class TestcasesRunSerializer(serializers.ModelSerializer):
+    env_id = serializers.IntegerField(label='环境变量ID', help_text='环境变量ID',
+                                      write_only=True, validators=[validates.is_exised_env_id])
 
-
+    class Meta:
+        model = TestcasesModels
+        fields = ('id', 'env_id')

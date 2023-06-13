@@ -11,7 +11,7 @@ from rest_framework import status
 from django.conf import settings
 
 from .models import TestcasesModels
-from .serializer import TestcasesSerializer
+from . import serializer
 from utils import handle_datas, common
 from interfaces.models import InterfacesModels
 from envs.models import EnvsModels
@@ -22,8 +22,26 @@ loggers = logging.getLogger('TestcasesErrorLog')
 
 class TestsuitsViewSet(ModelViewSet):
     queryset = TestcasesModels.objects.all()
-    serializer_class = TestcasesSerializer
+    serializer_class = serializer.TestcasesModelSerializer
     # permission_classes = [permissions.IsAuthenticated]
+
+    # def list(self, request, *args, **kwargs):
+    #     response = super().list(request, *args, **kwargs)
+    #     result = response.data['results']
+    #     date_list = []
+    #     for item in result:
+    #         interface = list(InterfacesModels.objects.filter(id=item.get('interface')))[0]
+    #         data = {
+    #             'name': item.get('name'),
+    #             'project': interface.project.name,
+    #             # 'project_id': interface.project.id,
+    #             'interface': interface.name,
+    #             # 'interface_id': interface.id,
+    #             'author': item.get('author')
+    #         }
+    #         date_list.append(data)
+    #     response.data['results'] = date_list
+    #     return response
 
     def retrieve(self, request, *args, **kwargs):
         """获取用例详情信息"""
@@ -31,10 +49,10 @@ class TestsuitsViewSet(ModelViewSet):
         testcase_obj = self.get_object()
 
         # 用例前置信息,使用json转换避免转换中参数出现格式错误(eval)
-        testcase_include = json.load(testcase_obj.include, encoding='utf-8')
+        testcase_include = json.loads(testcase_obj.include, encoding='utf-8')
 
         # 用例请求信息
-        testcase_request = json.load(testcase_obj.request, encoding='utf-8')
+        testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
         testcase_request_datas = testcase_request.get('test').get('request')
 
         # 处理用例的validate列表
