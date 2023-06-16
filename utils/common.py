@@ -16,10 +16,17 @@ import locale
 import os
 import yaml
 import logging
+from datetime import datetime
+
+from rest_framework.response import Response
+from httprunner.api import HttpRunner
+from httprunner.report import gen_html_report
+from httprunner.report import get_summary
 
 from debugtalks.models import DebugTalksModels
 from configures.models import ConfiguresModels
 from testcases.models import TestcasesModels
+from reports.models import ReportsModels
 
 loggers = logging.getLogger('TestcasesRunLog')
 
@@ -27,6 +34,70 @@ loggers = logging.getLogger('TestcasesRunLog')
 def datetime_fmt():
     locale.setlocale(locale.LC_CTYPE, 'chinese')
     return '%Y年%m月%d日 %H:%M:%S'
+
+
+def create_report(runner, report_name=None):
+    """
+    创建测试报告
+    :param runner:
+    :param report_name:
+    :return:
+    """
+    time_stamp = int(runner.get_summary["time"]["start_at"])
+    start_datetime = datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+    runner.get_summary['time']['start_datetime'] = start_datetime
+
+    # duration保留3位小数
+    runner.get_summary['time']['duration'] = round(runner.get_summary['time']['duration'], 3)
+    report_name = report_name if report_name else start_datetime
+    runner.get_summary['html_report_name'] = report_name
+
+    for item in runner.get_summary['details']:
+        # 对时间戳进行处理
+        try:
+            time_stamp = int(item['time']['start_at'])
+            item['time']['start_at'] = datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+        except Exception:
+            pass
+
+        try:
+            for record in item['records']:
+                # 对时间戳进行处理
+                try:
+                    time_stamp = int(record['meta_data']['request']['start_timestamp'])
+                    record['meta_data']['request']['start_timestamp'] = \
+                        datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+                except Exception:
+                    pass
+
+                record['meta_data']['response']['content'] = record['meta_data']['response']['content']. \
+                    decode('utf-8')
+                record['meta_data']['response']['cookies'] = dict(record['meta_data']['response']['cookies'])
+
+                request_body = record['meta_data']['request']['body']
+                if isinstance(request_body, bytes):
+                    record['meta_data']['request']['body'] = request_body.decode('utf-8')
+        except Exception as e:
+            continue
+
+    summary = json.dumps(runner.get_summary, ensure_ascii=False)
+
+    report_name = report_name + '_' + datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+    report_path = runner.gen_html_report(html_report_name=report_name)
+
+    with open(report_path, encoding='utf-8') as stream:
+        reports = stream.read()
+
+    test_report = {
+        'name': report_name,
+        'result': runner.summary.get('success'),
+        'success': runner.summary.get('stat').get('successes'),
+        'count': runner.summary.get('stat').get('testsRun'),
+        'html': reports,
+        'summary': summary
+    }
+    report_obj = ReportsModels.objects.create(**test_report)
+    return report_obj.id
 
 
 def generate_testcase_file(instance, env, testcase_dir_path):
@@ -43,6 +114,22 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     """
     testcase_list = []
 
+    configures_results = ConfiguresModels.objects.filter(id=json.loads(instance.include)['config'])
+    try:
+        configures_request = json.loads(list(configures_results)[0].request).get('config').get('request')
+        config = {
+            'config': {
+                'name': instance.name,
+                'request': {
+                    'base_url': env.base_url if env else '',
+                    'headers': configures_request.get('headers')
+                }
+            }
+        }
+    except Exception as e:
+        config = {}
+    testcase_list.append(config)
+
     # 获取include信息
     include = json.loads(instance.include, encoding='utf-8')
     # 获取request字段
@@ -51,22 +138,6 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     interface_name = instance.interface.name
     # 获取用例所属项目名称
     project_name = instance.interface.project.name
-
-    # 获取请求头参数
-    try:
-       config = json.loads(ConfiguresModels.objects.filter(id=include['config']).request)
-    except Exception:
-        raise Exception('配置id不存在或者缺少对应配置')
-
-    # config = {
-    #     'config': {
-    #         'name': instance.name,
-    #         'request': {
-    #             'base_url': env.base_url if env else ''
-    #         }
-    #     }
-    # }
-    testcase_list.append(config)
 
     testcase_dir_path = os.path.join(testcase_dir_path, project_name)
 
@@ -109,3 +180,22 @@ def generate_testcase_file(instance, env, testcase_dir_path):
         yaml.dump(testcase_list, f, allow_unicode=True)
 
     loggers.debug(f'新增用例{os.path.join(testcase_dir_path, instance.name + ".yaml")}')
+
+
+def run_testcase(instance, testcase_dir_path):
+    # 1、运行用例
+    runner = HttpRunner(log_level="INFO")
+    try:
+        runner.run(testcase_dir_path)
+    except Exception as e:
+        res = {'ret': False, 'msg': '用例执行失败'}
+        return Response(res, status=400)
+
+    # 2、创建报告
+    report_id = create_report(runner, instance.name)
+
+    # 3、用例运行成功之后，需要把生成的报告id返回
+    data = {
+        'id': report_id
+    }
+    return Response(data, status=201)

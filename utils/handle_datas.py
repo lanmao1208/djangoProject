@@ -19,8 +19,8 @@
 # 转化为 [{key: '${setup_hook_prepare_kwargs($request)}'}, {key: '${setup_hook_httpntlmauth($request)}'}]
 
 # 第六种:
-# 将 {'username': 'keyou', 'age': 18, 'gender': True}
-# 转化为 [{key: 'username', value: 'keyou', param_type: 'string'}, {key: 'age', value: 18, param_type: 'int'}]
+# 将 {'username': 'zhang', 'age': 18, 'gender': True}
+# 转化为 [{key: 'username', value: 'zhang', param_type: 'string'}, {key: 'age', value: 18, param_type: 'int'}]
 
 
 def handle_param_type(value):
@@ -168,8 +168,8 @@ def handle_data5(data):
 def handle_data6(data):
     """
     处理第六种类型的数据转化
-    将 {'username': 'keyou', 'age': 18, 'gender': True}
-    [{key: 'username', value: 'keyou', param_type: 'string'}, {key: 'age', value: 18, param_type: 'int'}]
+    将 {'username': 'zhang', 'age': 18, 'gender': True}
+    [{key: 'username', value: 'zhang', param_type: 'string'}, {key: 'age', value: 18, param_type: 'int'}]
     :param data: 待转换的参数列表
     :return:
     """

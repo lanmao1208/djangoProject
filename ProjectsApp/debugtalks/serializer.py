@@ -10,11 +10,12 @@ class DebugTalksSerializer(serializers.ModelSerializer):
     class Meta:
         model = DebugTalksModels
         fields = ('id', 'name', 'debugtalk', 'project')
-        # extra_kwargs = {
-        #     'name': {
-        #
-        #     }
-        # }
+        read_only_fields = ('name', 'project')
+        extra_kwargs = {
+            'debugtalk': {
+                'write_only': True
+            }
+        }
 
 
 class DebugTalkRetrieveSerializer(serializers.ModelSerializer):

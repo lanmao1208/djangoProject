@@ -15,6 +15,7 @@ class EnvsViewSet(ModelViewSet):
     queryset = EnvsModels.objects.all()
     serializer_class = EnvsSerializer
     # permission_classes = [permissions.IsAuthenticated]
+    ordering_fields = ['id', 'name']
 
     @action(methods=['get'], detail=False)
     def names(self, request, *args, **kwargs):

@@ -1,6 +1,7 @@
 from rest_framework import serializers
+
 from projects.models import ProjectsModels
-from utils import common
+from utils import common, validates
 from interfaces.models import InterfacesModels
 from debugtalks.models import DebugTalksModels
 
@@ -60,3 +61,11 @@ class ProjectToInterfacesSerializer(serializers.ModelSerializer):
         model = ProjectsModels
         fields = ('id', 'name', 'interfaces')
 
+
+class ProjectsRunSerializer(serializers.ModelSerializer):
+    env_id = serializers.IntegerField(label='环境变量ID', help_text='环境变量ID',
+                                      write_only=True, validators=[validates.is_exised_env_id])
+
+    class Meta:
+        model = ProjectsModels
+        fields = ('id', 'env_id')
