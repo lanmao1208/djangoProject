@@ -17,7 +17,7 @@ class DebugTalksSerializer(serializers.ModelSerializer):
         # }
 
 
-class DebugTalkRsetrieveSerializer(serializers.ModelSerializer):
+class DebugTalkRetrieveSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DebugTalksModels

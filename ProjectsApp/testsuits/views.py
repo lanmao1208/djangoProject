@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 import logging
 # Create your views here.
 
-loggers = logging.getLogger('TestsuitErrorLog')
+loggers = logging.getLogger('TestsuitsErrorLog')
 
 
 class TestsuitsViewSet(ModelViewSet):

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet
 from .models import DebugTalksModels
-from .serializer import DebugTalksSerializer,DebugTalkRsetrieveSerializer
+from .serializer import DebugTalksSerializer,DebugTalkRetrieveSerializer
 from rest_framework.response import Response
 import logging
 # Create your views here.
@@ -26,6 +26,6 @@ class DebugTalksViewSet(ModelViewSet):
     # # 方法二,添加一个序列化器类,然后指定调用retrieve使用
     # def get_serializer_class(self):
     #     if self.action == 'retrieve':
-    #         return DebugTalkRsetrieveSerializer
+    #         return DebugTalkRetrieveSerializer
     #     else:
     #         return self.serializer_class

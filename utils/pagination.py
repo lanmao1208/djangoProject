@@ -2,6 +2,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from collections import OrderedDict
 
+
 class MyPagination(PageNumberPagination):
     # 每页返回条数
     page_size = 10
@@ -14,7 +15,6 @@ class MyPagination(PageNumberPagination):
 
     # 每页最多显示条数
     max_page_size = 50
-
 
     def get_paginated_response(self, data):
         # 调用父类的get_paginated_response获取页数相关信息

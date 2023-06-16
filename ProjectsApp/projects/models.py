@@ -1,8 +1,10 @@
 from django.db import models
 
 # Create your models here.
+
+
 class ProjectsModels(models.Model):
-    id = models.AutoField(primary_key = True)
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=60, verbose_name='项目名称', help_text='项目名称', unique=True)
     leader = models.CharField(max_length=100, verbose_name='项目负责人', help_text='项目负责人')
     # leader_phone = models.CharField(max_length=20, verbose_name='项目负责人电话', help_text=' ', blank=True, null=True)

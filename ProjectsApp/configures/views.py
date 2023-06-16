@@ -58,7 +58,7 @@ class ConfiguresViewSet(ModelViewSet):
         selected_interface_id = config_obj.interface_id
         selected_project_id = InterfacesModels.objects.get(id=selected_interface_id).project_id
 
-        datas = {
+        data = {
             "author": config_obj.author,
             "configure_name": config_name,
             "selected_interface_id": selected_interface_id,
@@ -67,4 +67,4 @@ class ConfiguresViewSet(ModelViewSet):
             "globalVar": config_variables_list
         }
 
-        return Response(datas)
+        return Response(data)

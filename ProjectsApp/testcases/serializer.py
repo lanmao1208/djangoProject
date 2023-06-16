@@ -4,7 +4,7 @@ from rest_framework import validators
 from projects.models import ProjectsModels
 from interfaces.models import InterfacesModels
 from testcases.models import TestcasesModels
-from utils import common, validates
+from utils import validates
 
 
 class InterfacesProjectsModelSerializer(serializers.ModelSerializer):

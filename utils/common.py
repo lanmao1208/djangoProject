@@ -34,7 +34,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     结构目录
     suites/时间戳/项目名/接口名/用例名.yaml
     suites/时间戳/项目名/debugtalk.py
-    suties/时间戳/项目名/.env
+    suites/时间戳/项目名/.env
     该方法用来创建测试用例yaml文件
     :param instance:
     :param env:
@@ -42,15 +42,6 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     :return:
     """
     testcase_list = []
-    config = {
-        'config': {
-            'name': instance.name,
-            'request': {
-                'base_url': env.base_url if env else ''
-            }
-        }
-    }
-    testcase_list.append(config)
 
     # 获取include信息
     include = json.loads(instance.include, encoding='utf-8')
@@ -60,6 +51,22 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     interface_name = instance.interface.name
     # 获取用例所属项目名称
     project_name = instance.interface.project.name
+
+    # 获取请求头参数
+    try:
+       config = json.loads(ConfiguresModels.objects.filter(id=include['config']).request)
+    except Exception:
+        raise Exception('配置id不存在或者缺少对应配置')
+
+    # config = {
+    #     'config': {
+    #         'name': instance.name,
+    #         'request': {
+    #             'base_url': env.base_url if env else ''
+    #         }
+    #     }
+    # }
+    testcase_list.append(config)
 
     testcase_dir_path = os.path.join(testcase_dir_path, project_name)
 
@@ -97,11 +104,8 @@ def generate_testcase_file(instance, env, testcase_dir_path):
 
     # 把当前需要执行的用例追加到testcase_list最后
     testcase_list.append(request)
-    # with open(os.path.join(testcase_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
-    #     yaml.dump(testcase_list, f, all_unicode=True)
 
     with open(os.path.join(testcase_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
         yaml.dump(testcase_list, f, allow_unicode=True)
 
     loggers.debug(f'新增用例{os.path.join(testcase_dir_path, instance.name + ".yaml")}')
-
