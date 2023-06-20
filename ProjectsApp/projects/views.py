@@ -1,6 +1,6 @@
 import logging
 import os
-import datetime
+from datetime import datetime
 
 from djangoProject import settings
 from rest_framework import viewsets
@@ -141,3 +141,9 @@ class ProjectsViewSet(viewsets.ModelViewSet):
             return ProjectsRunSerializer
         else:
             return self.serializer_class
+
+    def perform_create(self, serializer):
+        if self.action == 'run':
+            pass
+        else:
+            serializer.save()

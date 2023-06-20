@@ -1,9 +1,11 @@
 from rest_framework import serializers
+
+
 from interfaces.models import InterfacesModels
 from testcases.models import TestcasesModels
 from configures.models import ConfiguresModels
 from projects.models import ProjectsModels
-from utils import common
+from utils import common, validates
 
 
 class InterfacesSerializer(serializers.ModelSerializer):
@@ -69,3 +71,16 @@ class InterfacesToConfiguresByIdSerializer(serializers.ModelSerializer):
     class Meta:
         model = InterfacesModels
         fields = ('configures',)
+
+
+class InterfaceRunSerializer(serializers.ModelSerializer):
+    """
+    通过接口来运行测试用例序列化器
+    """
+    env_id = serializers.IntegerField(write_only=True,
+                                      help_text='环境变量ID',
+                                      validators=[validates.is_exised_env_id])
+
+    class Meta:
+        model = InterfacesModels
+        fields = ('id', 'env_id')

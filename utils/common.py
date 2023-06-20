@@ -116,14 +116,11 @@ def generate_testcase_file(instance, env, testcase_dir_path):
 
     configures_results = ConfiguresModels.objects.filter(id=json.loads(instance.include)['config'])
     try:
-        configures_request = json.loads(list(configures_results)[0].request).get('config').get('request')
+        configures_request = json.loads(list(configures_results)[0].request).get('config')
         config = {
             'config': {
                 'name': instance.name,
-                'request': {
-                    'base_url': env.base_url if env else '',
-                    'headers': configures_request.get('headers')
-                }
+                'request': configures_request.get('request')
             }
         }
     except Exception as e:

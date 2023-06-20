@@ -24,24 +24,6 @@ class TestsuitsViewSet(ModelViewSet):
     serializer_class = serializer.TestcasesModelSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
-    # def list(self, request, *args, **kwargs):
-    #     response = super().list(request, *args, **kwargs)
-    #     result = response.data['results']
-    #     date_list = []
-    #     for item in result:
-    #         interface = InterfacesModels.objects.filter(id=item.get('interface')).first()
-    #         data = {
-    #             'name': item.get('name'),
-    #             'project': interface.project.name,
-    #             # 'project_id': interface.project.id,
-    #             'interface': interface.name,
-    #             # 'interface_id': interface.id,
-    #             'author': item.get('author')
-    #         }
-    #         date_list.append(data)
-    #     response.data['results'] = date_list
-    #     return response
-
     def retrieve(self, request, *args, **kwargs):
         """获取用例详情信息"""
         # Testcase对象
@@ -125,59 +107,25 @@ class TestsuitsViewSet(ModelViewSet):
         }
         return Response(data)
 
-    # @action(methods=['post'], detail=True)
-    # def run(self, request, *args, **kwargs):
-        # # 取出并构造参数
-        # instance = self.get_object()
-        # # 生成yaml用例文件
-        # # 运行用例(生成报告)
-        # response = super().create(request, *args, **kwargs)
-        # env_id = response.data.serializer.validated_data.get('env_id')
-        # testcase_data_dir = os.path.join(SUITES_DIR, datetime.strftime(datetime.now(), '%Y%m%d%H%M%S%f'))
-        # env = EnvsModels.objects.filter(id=env_id).first()
-        #
-        # common.generate_testcase_file(instance, env, testcase_data_dir)
     @action(methods=['post'], detail=True)
     def run(self, request, *args, **kwargs):
         # 取出并构造参数
         instance = self.get_object()
+        # serializer = self.get_serializer(data=request.data)
+        # serializer.is_valid(raise_exception=True)
         response = super().create(request, *args, **kwargs)
         env_id = response.data.serializer.validated_data.get('env_id')
         testcase_dir_path = os.path.join(SUITES_DIR, datetime.strftime(datetime.now(), '%Y%m%d%H%M%S%f'))
         # 创建一个以时间戳命名的路径
         os.mkdir(testcase_dir_path)
+
         env = EnvsModels.objects.filter(id=env_id).first()
-
-        interface_qs = InterfacesModels.objects.filter(project=instance.interface.project)
-        if not interface_qs.exists():
-            data = {
-                'ret': False,
-                'msg': '此项目下无接口，无法运行'
-            }
-            return Response(data, status=400)
-
-        runnable_testcase_obj = []
-        for interface_obj in interface_qs:
-            # 当前接口项目的用例所在查询集对象
-            testcase_qs = TestcasesModels.objects.filter(interface=interface_obj)
-            if testcase_qs.exists():
-                # 将两个列表合并
-                runnable_testcase_obj.extend(list(testcase_qs))
-
-        if len(runnable_testcase_obj) == 0:
-            data = {
-                'ret': False,
-                'msg': '此项目下无用例，无法运行'
-            }
-            return Response(data, status=400)
-
-        for testcase_obj in runnable_testcase_obj:
-            # 生成yaml用例文件
-            common.generate_testcase_file(testcase_obj, env, testcase_dir_path)
+        # 生成yaml用例文件
+        common.generate_testcase_file(instance, env, testcase_dir_path)
 
         # 运行用例（生成报告）
-        # common.run_testcase(instance, testcase_dir_path)
-        return common.run_testcase(instance, testcase_dir_path)
+        common.run_testcase(instance, testcase_dir_path)
+        # return common.run_testcase(instance, testcase_dir_path)
 
     def get_serializer_class(self):
         if self.action == 'run':

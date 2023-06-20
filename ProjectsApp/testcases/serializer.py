@@ -17,12 +17,18 @@ class InterfacesProjectsModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = InterfacesModels
         fields = ('name', 'pid', 'iid', 'project')
+        extra_kwargs = {
+            'name': {
+                'read_only': True
+            }
+        }
 
     def validate(self, attrs):
         pid = attrs.get('pid')
         iid = attrs.get('iid')
         if not InterfacesModels.objects.filter(id=iid, project_id=pid).exists():
             raise serializers.ValidationError('所属项目id与接口id不匹配')
+        return attrs
 
 
 class TestcasesModelSerializer(serializers.ModelSerializer):
@@ -31,7 +37,6 @@ class TestcasesModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = TestcasesModels
         exclude = ('update_time', 'create_time')
-
         extra_kwargs = {
             'request': {
                 'write_only': True,
