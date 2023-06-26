@@ -18,10 +18,10 @@ import yaml
 import logging
 from datetime import datetime
 
+from djangoProject.settings import REPORTS_DIR
 from rest_framework.response import Response
 from httprunner.api import HttpRunner
 from httprunner.report import gen_html_report
-from httprunner.report import get_summary
 
 from debugtalks.models import DebugTalksModels
 from configures.models import ConfiguresModels
@@ -43,58 +43,44 @@ def create_report(runner, report_name=None):
     :param report_name:
     :return:
     """
-    time_stamp = int(runner.get_summary["time"]["start_at"])
+    time_stamp = int(runner["time"]["start_at"])
     start_datetime = datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-    runner.get_summary['time']['start_datetime'] = start_datetime
-
+    runner['time']['start_datetime'] = start_datetime
     # duration保留3位小数
-    runner.get_summary['time']['duration'] = round(runner.get_summary['time']['duration'], 3)
+    runner['time']['duration'] = round(runner['time']['duration'], 3)
     report_name = report_name if report_name else start_datetime
-    runner.get_summary['html_report_name'] = report_name
+    runner['html_report_name'] = report_name
 
-    for item in runner.get_summary['details']:
-        # 对时间戳进行处理
-        try:
-            time_stamp = int(item['time']['start_at'])
-            item['time']['start_at'] = datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-        except Exception:
-            pass
-
+    for item in runner['details']:
         try:
             for record in item['records']:
-                # 对时间戳进行处理
-                try:
-                    time_stamp = int(record['meta_data']['request']['start_timestamp'])
-                    record['meta_data']['request']['start_timestamp'] = \
-                        datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-                except Exception:
-                    pass
-
-                record['meta_data']['response']['content'] = record['meta_data']['response']['content']. \
+                record['meta_datas']['response']['content'] = record['meta_datas']['response']['content']. \
                     decode('utf-8')
-                record['meta_data']['response']['cookies'] = dict(record['meta_data']['response']['cookies'])
+                record['meta_datas']['response']['cookies'] = dict(record['meta_datas']['response']['cookies'])
 
-                request_body = record['meta_data']['request']['body']
+                request_body = record['meta_datas']['request']['body']
                 if isinstance(request_body, bytes):
-                    record['meta_data']['request']['body'] = request_body.decode('utf-8')
+                    record['meta_datas']['request']['body'] = request_body.decode('utf-8')
         except Exception as e:
             continue
 
-    summary = json.dumps(runner.get_summary, ensure_ascii=False)
+    summary = json.dumps(runner, ensure_ascii=False)
 
     report_name = report_name + '_' + datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
-    report_path = runner.gen_html_report(html_report_name=report_name)
+    html_name = os.path.join(REPORTS_DIR, report_name + '.html')
+    report_path = gen_html_report(runner, report_dir=html_name)
 
     with open(report_path, encoding='utf-8') as stream:
         reports = stream.read()
 
     test_report = {
         'name': report_name,
-        'result': runner.summary.get('success'),
-        'success': runner.summary.get('stat').get('successes'),
-        'count': runner.summary.get('stat').get('testsRun'),
+        'result': runner.get('success'),
+        'success': runner.get('stat')['testcases']['success'],
+        'count': runner.get('stat')['testcases']['total'],
         'html': reports,
         'summary': summary
+        # 'summary': reports
     }
     report_obj = ReportsModels.objects.create(**test_report)
     return report_obj.id
@@ -116,14 +102,20 @@ def generate_testcase_file(instance, env, testcase_dir_path):
 
     configures_results = ConfiguresModels.objects.filter(id=json.loads(instance.include)['config'])
     try:
-        configures_request = json.loads(list(configures_results)[0].request).get('config')
-        config = {
-            'config': {
-                'name': instance.name,
-                'request': configures_request.get('request')
-            }
-        }
+        config = json.loads(list(configures_results)[0].request).get('config')
+        # configures_request = json.loads(list(configures_results)[0].request).get('config').get('request')
+        # config = {
+        #     'config': {
+        #         'name': instance.name,
+        #         'request': {
+        #             'base_url': env.base_url if env else '',
+        #             'header': configures_request.get('header')
+        #         }
+        #     }
+        # }
+
     except Exception as e:
+        loggers.error(e)
         config = {}
     testcase_list.append(config)
 
@@ -166,6 +158,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
             try:
                 testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
             except Exception as e:
+                loggers.error(e)
                 continue
 
             testcase_list.append(testcase_request)
@@ -176,23 +169,25 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     with open(os.path.join(testcase_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
         yaml.dump(testcase_list, f, allow_unicode=True)
 
-    loggers.debug(f'新增用例{os.path.join(testcase_dir_path, instance.name + ".yaml")}')
+    # loggers.debug(f'新增用例{os.path.join(testcase_dir_path, instance.name + ".yaml")}')
 
 
 def run_testcase(instance, testcase_dir_path):
     # 1、运行用例
-    runner = HttpRunner(log_level="INFO")
+    runner = HttpRunner()
     try:
-        runner.run(testcase_dir_path)
+        summary = runner.run(testcase_dir_path)
     except Exception as e:
+        loggers.error(e)
         res = {'ret': False, 'msg': '用例执行失败'}
         return Response(res, status=400)
 
     # 2、创建报告
-    report_id = create_report(runner, instance.name)
+    report_id = create_report(summary, instance.name)
 
     # 3、用例运行成功之后，需要把生成的报告id返回
     data = {
         'id': report_id
+        # 'id': 1
     }
     return Response(data, status=201)

@@ -1,0 +1,44 @@
+{
+    "project_mapping":{
+        "env":{},
+        "PWD":"G:\\learn_project\\djangoProject",
+        "functions":{},
+        "test_path":"G:\\learn_project\\djangoProject\\suites\\20230620173520857170"
+    },
+    "testcases":[
+        {
+            "config":{
+                "name":"测试后台登录",
+                "request":{
+                    "base_url":"https://gl1.01msxs.com:51103",
+                    "headers":{
+                        "Accept":"application/json, text/plain, */*",
+                        "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
+                    }
+                }
+            },
+            "teststeps":[
+                {
+                    "name":"测试后台",
+                    "request":{
+                        "json":{
+                            "password":"hjsjYY@j2b271",
+                            "userAccount":"admin"
+                        },
+                        "method":"POST",
+                        "url":"/api/login"
+                    },
+                    "validate":[
+                        {
+                            "check":"status_code",
+                            "comparator":"equals",
+                            "expect":"200"
+                        }
+                    ]
+                }
+            ],
+            "path":"G:\\learn_project\\djangoProject\\suites\\20230620173520857170\\前程贷P2P金融项目\\星辰据点-瘴气之谷\\测试后台.yaml",
+            "type":"testcase"
+        }
+    ]
+}
