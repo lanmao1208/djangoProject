@@ -16,7 +16,7 @@ from utils import common
 
 # Create your views here.
 
-loggers = logging.getLogger('TestsuitsErrorLog')
+loggers = logging.getLogger('TestsuitsErrorLog.log')
 
 
 class TestsuitsViewSet(ModelViewSet):

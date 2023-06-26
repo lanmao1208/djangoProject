@@ -12,7 +12,7 @@ from interfaces.models import InterfacesModels
 from utils import handle_datas
 # Create your views here.
 
-loggers = logging.getLogger('TestcasesErrorLog')
+loggers = logging.getLogger('TestcasesErrorLog.log')
 
 
 class ConfiguresViewSet(ModelViewSet):

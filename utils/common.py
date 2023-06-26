@@ -28,7 +28,7 @@ from configures.models import ConfiguresModels
 from testcases.models import TestcasesModels
 from reports.models import ReportsModels
 
-loggers = logging.getLogger('TestcasesRunLog')
+loggers = logging.getLogger('common.log')
 
 
 def datetime_fmt():

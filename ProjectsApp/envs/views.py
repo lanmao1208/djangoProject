@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 import logging
 # Create your views here.
 
-loggers = logging.getLogger('EnvErrorLog')
+loggers = logging.getLogger('EnvErrorLog.log')
 
 
 class EnvsViewSet(ModelViewSet):

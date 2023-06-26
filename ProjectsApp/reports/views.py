@@ -16,7 +16,7 @@ from .utils import get_file_content
 
 # Create your views here.
 
-loggers = logging.getLogger('ReportErrorLog')
+loggers = logging.getLogger('ReportErrorLog.log')
 
 
 class ReportsViewSet(GenericViewSet,
@@ -62,7 +62,8 @@ class ReportsViewSet(GenericViewSet,
         try:
             # 将summary json字符串转化为Python中的字典类型
             response.data['summary'] = json.loads(response.data['summary'], encoding='utf-8')
-        except Exception:
+        except Exception as e:
+            loggers.debug(e)
             raise Exception('summary参数异常')
         finally:
             return response

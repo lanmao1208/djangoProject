@@ -17,7 +17,7 @@ from djangoProject import settings
 
 # Create your views here.
 
-loggers = logging.getLogger('InterfaceErrorLog')
+loggers = logging.getLogger('InterfaceErrorLog.log')
 
 
 class InterfacesViewSet(viewsets.ModelViewSet):
