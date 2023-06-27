@@ -54,13 +54,13 @@ def create_report(runner, report_name=None):
     for item in runner['details']:
         try:
             for record in item['records']:
-                record['meta_datas']['response']['content'] = record['meta_datas']['response']['content']. \
-                    decode('utf-8')
-                record['meta_datas']['response']['cookies'] = dict(record['meta_datas']['response']['cookies'])
+                # record['meta_datas']['response']['content'] = record['meta_datas']['response']['content']. \
+                #     decode('utf-8')
+                # record['meta_datas']['response']['cookies'] = dict(record['meta_datas']['response']['cookies'])
 
-                request_body = record['meta_datas']['request']['body']
+                request_body = record['meta_datas']['data'][0]['response']['body']
                 if isinstance(request_body, bytes):
-                    record['meta_datas']['request']['body'] = request_body.decode('utf-8')
+                    record['meta_datas']['data'][0]['response']['body'] = request_body.decode('utf-8')
         except Exception as e:
             continue
 
@@ -102,17 +102,17 @@ def generate_testcase_file(instance, env, testcase_dir_path):
 
     configures_results = ConfiguresModels.objects.filter(id=json.loads(instance.include)['config'])
     try:
-        config = json.loads(list(configures_results)[0].request).get('config')
-        # configures_request = json.loads(list(configures_results)[0].request).get('config').get('request')
-        # config = {
-        #     'config': {
-        #         'name': instance.name,
-        #         'request': {
-        #             'base_url': env.base_url if env else '',
-        #             'header': configures_request.get('header')
-        #         }
-        #     }
-        # }
+        # config = json.loads(list(configures_results)[0].request).get('config')
+        configures_request = json.loads(list(configures_results)[0].request).get('config').get('request')
+        config = {
+            'config': {
+                'name': instance.name,
+                'base_url': env.base_url if env else '',
+                'request': {
+                    'header': configures_request['headers']
+                }
+            }
+        }
 
     except Exception as e:
         loggers.error(e)
@@ -148,7 +148,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
         config_obj = ConfiguresModels.objects.filter(id=config_id).first()
         if config_obj:
             config_request = json.loads(config_obj.request, encoding='utf-8')
-            config_request['config']['request']['base_url'] = env.base_url if env else ''
+            config_request['config']['base_url'] = env.base_url if env else ''
             testcase_list[0] = config_request
 
     # 处理前置用例
@@ -164,6 +164,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
             testcase_list.append(testcase_request)
 
     # 把当前需要执行的用例追加到testcase_list最后
+    request['test']['validate'][0]['expect'] = int(request['test']['validate'][0]['expect'])
     testcase_list.append(request)
 
     with open(os.path.join(testcase_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
