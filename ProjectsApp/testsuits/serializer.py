@@ -1,15 +1,17 @@
+import re
+
 from rest_framework import serializers
+
 from .models import TestsuitsModels
 from projects.models import ProjectsModels
 from interfaces.models import InterfacesModels
-from utils import common
-import re
+from utils import common, validates
 
 
 def validators_include(value):
     # ^开头$结尾,\d+匹配一个或者多个字符的数字(1,11,111)
     # (,\d+)匹配,','号后跟随的一个或者多个字符的数字,'*'号表示匹配多次
-    obj = re.match(r'^\[\d+(,\d+)*\]$', value)
+    obj = re.match(r'^\[\d+(, *\d+)*\]$', value)
     if obj is None:
         raise serializers.ValidationError('参数格式错误')
     else:
@@ -65,10 +67,16 @@ class TestsuitsSerializer(serializers.ModelSerializer):
             return super().update(instance, validated_data)
 
 
-class TestsuitsReadSerializer(serializers.ModelSerializer):
-    project_id = serializers.PrimaryKeyRelatedField(label='所属项目id', help_text='所属项目id', queryset=ProjectsModels.objects.all())
+class TestsuitsRunSerializer(serializers.ModelSerializer):
+    """
+    通过套件来运行测试用例序列化器
+    """
+    env_id = serializers.IntegerField(write_only=True,
+                                      help_text='环境变量ID',
+                                      validators=[validates.is_exised_env_id])
 
     class Meta:
         model = TestsuitsModels
-        fields = ('name', 'include',  'project_id')
+        fields = ('id', 'env_id')
+
 

@@ -18,7 +18,7 @@ from utils import common
 
 # Create your views here.
 
-loggers = logging.getLogger('ProjectErrorLog.log')
+loggers = logging.getLogger('ProjectErrorLog')
 
 
 class ProjectsViewSet(viewsets.ModelViewSet):

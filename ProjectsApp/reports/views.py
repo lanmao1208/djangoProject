@@ -16,7 +16,7 @@ from .utils import get_file_content
 
 # Create your views here.
 
-loggers = logging.getLogger('ReportErrorLog.log')
+loggers = logging.getLogger('ProjectErrorLog')
 
 
 class ReportsViewSet(GenericViewSet,

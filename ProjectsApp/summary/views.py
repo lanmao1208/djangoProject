@@ -17,7 +17,7 @@ from debugtalks.models import DebugTalksModels
 from reports.models import ReportsModels
 # Create your views here.
 
-loggers = logging.getLogger('SummaryErrorLog.log')
+loggers = logging.getLogger('ProjectErrorLog')
 
 
 class SummaryAPIView(APIView):

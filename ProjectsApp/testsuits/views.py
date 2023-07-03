@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .models import TestsuitsModels
-from .serializer import TestsuitsSerializer, TestsuitsReadSerializer
+from .serializer import TestsuitsSerializer, TestsuitsRunSerializer
 from envs.models import EnvsModels
 from testcases.models import TestcasesModels
 from interfaces.models import InterfacesModels
@@ -16,7 +16,7 @@ from utils import common
 
 # Create your views here.
 
-loggers = logging.getLogger('TestsuitsErrorLog.log')
+loggers = logging.getLogger('ProjectErrorLog')
 
 
 class TestsuitsViewSet(ModelViewSet):
@@ -44,7 +44,7 @@ class TestsuitsViewSet(ModelViewSet):
         # 创建一个以时间戳命名的路径
         os.mkdir(testcase_dir_path)
         env = EnvsModels.objects.filter(id=env_id).first()
-        interface_qs = InterfacesModels.objects.filter(project=instance.interface.project)
+        interface_qs = InterfacesModels.objects.filter(project=instance.project)
         if not interface_qs.exists():
             data = {
                 'ret': False,
@@ -74,3 +74,17 @@ class TestsuitsViewSet(ModelViewSet):
         # 运行用例（生成报告）
         # common.run_testcase(instance, testcase_dir_path)
         return common.run_testcase(instance, testcase_dir_path)
+
+    def get_serializer_class(self):
+        """
+        不同的action选择不同的序列化器
+        :return:
+        """
+        return TestsuitsRunSerializer if self.action == 'run' else self.serializer_class
+
+    def perform_create(self, serializer):
+        # 通过序列化器进行数据效验
+        if self.action == 'run':
+            pass
+        else:
+            serializer.save()

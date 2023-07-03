@@ -18,7 +18,7 @@ import yaml
 import logging
 from datetime import datetime
 
-from djangoProject.settings import REPORTS_DIR
+from djangoProject.settings import REPORTS_DIR, LOG_FILE_DIR
 from rest_framework.response import Response
 from httprunner.api import HttpRunner
 from httprunner.report import gen_html_report
@@ -28,7 +28,7 @@ from configures.models import ConfiguresModels
 from testcases.models import TestcasesModels
 from reports.models import ReportsModels
 
-loggers = logging.getLogger('common.log')
+loggers = logging.getLogger('ProjectErrorLog')
 
 
 def datetime_fmt():
@@ -158,6 +158,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
             testcase_obj = TestcasesModels.objects.filter(id=testcase_id).first()
             try:
                 testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
+                # 修改断言中的状态码类型,str类型转int类型
                 testcase_request['test']['validate'][0]['expect'] = int(testcase_request['test']['validate'][0]['expect'])
             except Exception as e:
                 loggers.error(e)
@@ -165,14 +166,19 @@ def generate_testcase_file(instance, env, testcase_dir_path):
 
             testcase_list.append(testcase_request)
 
+    try:
+        # 可能存在异常数据,参数化状态码略过
+        request['test']['validate'][0]['expect'] = int(request['test']['validate'][0]['expect'])
+    except Exception as e:
+        loggers.error(e)
+        pass
     # 把当前需要执行的用例追加到testcase_list最后
-    request['test']['validate'][0]['expect'] = int(request['test']['validate'][0]['expect'])
     testcase_list.append(request)
 
     with open(os.path.join(testcase_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
         yaml.dump(testcase_list, f, allow_unicode=True)
 
-    # loggers.debug(f'新增用例{os.path.join(testcase_dir_path, instance.name + ".yaml")}')
+    loggers.debug(f'新增用例{os.path.join(testcase_dir_path, instance.name + ".yaml")}')
 
 
 def run_testcase(instance, testcase_dir_path):

@@ -16,7 +16,7 @@ from interfaces.models import InterfacesModels
 from envs.models import EnvsModels
 # Create your views here.
 
-loggers = logging.getLogger('TestcasesErrorLog.log')
+loggers = logging.getLogger('ProjectErrorLog')
 
 
 class TestsuitsViewSet(ModelViewSet):

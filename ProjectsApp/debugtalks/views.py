@@ -6,7 +6,7 @@ from rest_framework.response import Response
 import logging
 # Create your views here.
 
-loggers = logging.getLogger('DebugTalkErrorLog.log')
+loggers = logging.getLogger('ProjectErrorLog')
 
 
 class DebugTalksViewSet(ModelViewSet):

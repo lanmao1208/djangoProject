@@ -17,6 +17,7 @@ import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(BASE_DIR, 'ProjectsApp'))
+LOG_FILE_DIR = os.path.join(BASE_DIR, 'ProjectErrorLog/Loggers.log')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -228,7 +229,7 @@ LOGGING = {
                     'class': 'logging.handlers.RotatingFileHandler',
                     # 指定存放日志文件的所处路径
                     # 日志文件的位置(linux中可以使用var/log取代BASE_DIR进行拼接)
-                    'filename': os.path.join(BASE_DIR, 'ProjectErrorLog/Loggers.log'),
+                    'filename': LOG_FILE_DIR,
                     'maxBytes': 100 * 1024 * 1024,  # 日志存储最大空间(100MB)
                     'backupCount': 10,  # 最大日志个数(10)
                     'formatter': 'verbose',
