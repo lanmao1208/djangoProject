@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'reports',
     'testcases',
     'testsuits',
+    'summary',
 
     # 外部插件
     'drf_yasg',

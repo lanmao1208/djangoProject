@@ -54,14 +54,15 @@ def create_report(runner, report_name=None):
     for item in runner['details']:
         try:
             for record in item['records']:
-                # record['meta_datas']['response']['content'] = record['meta_datas']['response']['content']. \
-                #     decode('utf-8')
-                # record['meta_datas']['response']['cookies'] = dict(record['meta_datas']['response']['cookies'])
-
+                record['meta_datas']['data'][0]['response']['content'] = record['meta_datas']['data'][0]['response']['content']\
+                    .decode('utf-8')
+                record['meta_datas']['data'][0]['response']['cookies'] = dict(record['meta_datas']['data'][0]
+                                                                              ['response']['cookies'])
                 request_body = record['meta_datas']['data'][0]['response']['body']
                 if isinstance(request_body, bytes):
                     record['meta_datas']['data'][0]['response']['body'] = request_body.decode('utf-8')
         except Exception as e:
+            loggers.error(e)
             continue
 
     summary = json.dumps(runner, ensure_ascii=False)
@@ -157,6 +158,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
             testcase_obj = TestcasesModels.objects.filter(id=testcase_id).first()
             try:
                 testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
+                testcase_request['test']['validate'][0]['expect'] = int(testcase_request['test']['validate'][0]['expect'])
             except Exception as e:
                 loggers.error(e)
                 continue

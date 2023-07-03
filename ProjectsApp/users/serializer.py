@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from rest_framework_jwt.serializers import jwt_payload_handler, jwt_encode_handler
 
 
-
 class RegisterSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(max_length=20, min_length=6, label="确认密码", help_text="确认密码", write_only=True)
     token = serializers.CharField(label="Token", help_text="Token", read_only=True)

@@ -49,6 +49,7 @@ class UserNameIsExistedView(APIView):
         }
         return Response(user_dict)
 
+
 class EmailIsExistedView(APIView):
     permission_classes = [permissions.AllowAny]
 
