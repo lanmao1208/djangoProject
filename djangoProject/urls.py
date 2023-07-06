@@ -25,7 +25,7 @@ schema_view = get_schema_view(
 		title="API文档",  # 必传
 		default_version = "v1",  # 必传
 		description="这是一个美轮美奂的接口文档",
-		terms_of_service="http://api.keyou.site",
+		terms_of_service="http://127.0.0.1:8081",
 		contact=openapi.Contact(email="XXX@qq.com"),
 		license=openapi.License(name="BSD Lincense")
 	),

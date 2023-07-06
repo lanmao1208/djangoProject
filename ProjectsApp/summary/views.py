@@ -48,8 +48,15 @@ class SummaryAPIView(APIView):
         debug_talks_count = DebugTalksModels.objects.count()
         reports_count = ReportsModels.objects.count()
 
-        run_testcases_success_count = ReportsModels.objects.aggregate(Sum('success'))['success__sum'] or 0
-        run_testcases_all_count = ReportsModels.objects.aggregate(Sum('count'))['count__sum'] or 0
+        # 初始化平台数据后,因为不存在字段所以会报错
+        try:
+            run_testcases_success_count = ReportsModels.objects.aggregate(Sum('success'))['success__sum'] or 0
+            run_testcases_all_count = ReportsModels.objects.aggregate(Sum('count'))['count__sum'] or 0
+        except Exception as e:
+            run_testcases_success_count = 0
+            run_testcases_all_count = 0
+            loggers.debug(e)
+            pass
 
         if run_testcases_all_count:
             success_rate = int((run_testcases_success_count/run_testcases_all_count)*100)

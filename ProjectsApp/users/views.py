@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from users.serializer import RegisterSerializer
 
+
 class RegisterGetTokenViewSet(mixins.CreateModelMixin, GenericViewSet):
     """
     注册接口,简化版
