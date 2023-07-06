@@ -14,11 +14,12 @@
 import json
 import locale
 import os
+import shutil
 import yaml
 import logging
 from datetime import datetime
 
-from djangoProject.settings import REPORTS_DIR, LOG_FILE_DIR
+from djangoProject.settings import REPORTS_DIR, SUITES_DIR
 from rest_framework.response import Response
 from httprunner.api import HttpRunner
 from httprunner.report import gen_html_report
@@ -68,7 +69,7 @@ def create_report(runner, report_name=None):
     summary = json.dumps(runner, ensure_ascii=False)
 
     report_name = report_name + '_' + datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
-    html_name = os.path.join(REPORTS_DIR, report_name + '.html')
+    html_name = os.path.join(REPORTS_DIR, report_name)
     report_path = gen_html_report(runner, report_dir=html_name)
 
     with open(report_path, encoding='utf-8') as stream:
@@ -84,6 +85,8 @@ def create_report(runner, report_name=None):
         # 'summary': reports
     }
     report_obj = ReportsModels.objects.create(**test_report)
+    move_old_file(REPORTS_DIR)
+    move_old_file(SUITES_DIR)
     return report_obj.id
 
 
@@ -178,8 +181,6 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     with open(os.path.join(testcase_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
         yaml.dump(testcase_list, f, allow_unicode=True)
 
-    loggers.debug(f'新增用例{os.path.join(testcase_dir_path, instance.name + ".yaml")}')
-
 
 def run_testcase(instance, testcase_dir_path):
     # 1、运行用例
@@ -199,4 +200,19 @@ def run_testcase(instance, testcase_dir_path):
         'id': report_id
         # 'id': 1
     }
+
     return Response(data, status=201)
+
+
+def move_old_file(dir_path):
+    # 获取目录中的所有文件和子目录
+    files = os.listdir(dir_path)
+
+    # 对文件按创建时间进行排序
+    files.sort(key=lambda x: os.path.getctime(os.path.join(dir_path, x)))
+
+    if len(files) > 5:
+        path = os.path.join(dir_path, files[0])
+        shutil.rmtree(path)
+
+
