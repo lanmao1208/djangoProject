@@ -19,6 +19,7 @@ import yaml
 import logging
 from datetime import datetime
 # from threading import Thread
+from natsort import natsorted
 from concurrent.futures import ThreadPoolExecutor
 
 from djangoProject.settings import REPORTS_DIR, SUITES_DIR
@@ -32,8 +33,6 @@ from testcases.models import TestcasesModels
 from reports.models import ReportsModels
 
 loggers = logging.getLogger('ProjectErrorLog')
-
-ret_values = []
 
 
 def datetime_fmt():
@@ -162,20 +161,20 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     if 'testcases' in include:
         for testcase_id in include.get('testcases'):
             testcase_obj = TestcasesModels.objects.filter(id=testcase_id).first()
+            testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
             try:
-                testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
-                if type(eval(request['test']['validate'][0]['expect'])) == int:
-                    # 修改断言中的状态码类型,str类型转int类型
-                    testcase_request['test']['validate'][0]['expect'] = int(testcase_request['test']['validate'][0]['expect'])
+                testcase_request['test']['validate'][0]['expect'] = eval(
+                    testcase_request['test']['validate'][0]['expect'])
             except Exception as e:
                 loggers.error(e)
+                testcase_list.append(testcase_request)
                 continue
-
-            testcase_list.append(testcase_request)
-
-    if type(eval(request['test']['validate'][0]['expect'])) == int:
+    try:
         # 可能存在异常数据,参数化状态码略过
-        request['test']['validate'][0]['expect'] = int(request['test']['validate'][0]['expect'])
+        request['test']['validate'][0]['expect'] = eval(request['test']['validate'][0]['expect'])
+    except Exception as e:
+        loggers.error(e)
+        pass
     # 把当前需要执行的用例追加到testcase_list最后
     testcase_list.append(request)
 
@@ -187,6 +186,7 @@ def start_run_testcase(instance, testcase_dir_path):
     # 1、运行用例
     runner = HttpRunner()
     try:
+        # 下一步多线程优化
         summary = runner.run(testcase_dir_path)
     except Exception as e:
         loggers.error(e)
@@ -201,8 +201,7 @@ def start_run_testcase(instance, testcase_dir_path):
         'id': report_id
         # 'id': 1
     }
-    ret_values.append(data)
-    return Response(data, status=201)
+    return data
 
 
 def move_old_file():
@@ -214,10 +213,12 @@ def move_old_file():
         # 如果目录下文件大于5则进行自动删除操作
         while len(files) > 5:
             # 对文件按创建时间进行排序
-            files.sort(key=lambda x: os.path.getctime(os.path.join(dir_path, x)))
+            # files.sort(key=lambda x: os.path.getctime(os.path.join(dir_path, x)))
+            files = natsorted(files)
             remove_file = files[0]
             shutil.rmtree(os.path.join(dir_path, remove_file))
             files.remove(remove_file)
+        return True
 
 
 # def run_testcase(instance, testcase_dir_path):
@@ -231,7 +232,8 @@ def move_old_file():
 def run_testcase(instance, testcase_dir_path):
     # 多线程运行
     with ThreadPoolExecutor(max_workers=2) as e:
-        f1 = e.submit(move_old_file, instance, testcase_dir_path)
+        f1 = e.submit(move_old_file,)
         f2 = e.submit(start_run_testcase, instance, testcase_dir_path)
-        return Response(f2.result().data, status=201)
+        loggers.info(msg=r'文件清理{}'.format(f1.result()))
+        return Response(f2.result(), status=201)
 
