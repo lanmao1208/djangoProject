@@ -1,6 +1,4 @@
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from collections import OrderedDict
 
 
 class MyPagination(PageNumberPagination):
@@ -28,16 +26,3 @@ class MyPagination(PageNumberPagination):
         page_size_query_description = '每页几条'
 
         return response
-
-        # # 重写父类方法,但是需要导入部分模块,较为繁琐不太推荐
-        # current_page_num = self.page.number
-        # total_pages = self.page.paginator.num_pages
-
-        # return Response(OrderedDict([
-        #     ('count', self.page.paginator.count),
-        #     ('next', self.get_next_link()),
-        #     ('previous', self.get_previous_link()),
-        #     ('results', data),
-        #     ('current_page_num', current_page_num),
-        #     ('total_pages', total_pages)
-        # ]))

@@ -43,22 +43,6 @@ class ReportsViewSet(GenericViewSet,
 
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
-        # result = data.data
-        # summary = result['summary']
-        # if 'true' in summary:
-        #     summary = summary.replace('true', '1')
-        # if 'false' in summary:
-        #     summary = summary.replace('false', '0')
-        # if 'null' in summary:
-        #     summary = summary.replace('null', 'None')
-        # try:
-        #     summary = eval(summary)
-        # except Exception as e:
-        #     e.args = '内部参数错误'
-        #     raise e
-        # result['summary'] = summary
-        # data.data = result
-        # return data
         try:
             # 将summary json字符串转化为Python中的字典类型
             response.data['summary'] = json.loads(response.data['summary'], encoding='utf-8')

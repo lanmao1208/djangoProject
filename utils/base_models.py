@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
--------------------------------------------------
-  @Time : 2020/8/1 9:56 
-  @Auth : 可优
-  @File : base_models.py
-  @IDE  : PyCharm
-  @Motto: ABC(Always Be Coding)
-  @Email: keyou100@qq.com
-  @Company: 湖南省零檬信息技术有限公司
-  @Copyright: 柠檬班
--------------------------------------------------
-"""
 from django.db import models
 
 

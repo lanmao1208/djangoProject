@@ -17,7 +17,7 @@ import sys
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(os.path.join(BASE_DIR, 'ProjectsApp'))
-LOG_FILE_DIR = os.path.join(BASE_DIR, 'ProjectErrorLog/Loggers.log')
+LOG_FILE_DIR = os.path.join(BASE_DIR, 'ProjectErrorLog', 'projectrunlog.log')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -249,9 +249,13 @@ LOGGING = {
         }
 
 
-# 指定前端token值传递的前缀
+# 指定前端token值传递的前缀,不写默认是"JWT"
 # JWT_AUTH_HEADER_PREFIX = 'JWT',
+
+# JWT_EXPIRATION_DELTA: datetime.timedelta(days=1)
 
 # 定义下载的报告的存放路径,变量名要大写
 REPORTS_DIR = os.path.join(BASE_DIR, 'reports')
 SUITES_DIR = os.path.join(BASE_DIR, 'suites')
+
+

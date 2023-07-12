@@ -1,14 +1,10 @@
-from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet
-from .models import EnvsModels
-from .serializer import EnvsSerializer, EnvsNameSerializer
-from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
-import logging
-# Create your views here.
+from rest_framework.viewsets import ModelViewSet
 
-loggers = logging.getLogger('ProjectErrorLog')
+from .models import EnvsModels
+from .serializer import EnvsSerializer, EnvsNameSerializer
+# Create your views here.
 
 
 class EnvsViewSet(ModelViewSet):

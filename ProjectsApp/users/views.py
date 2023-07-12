@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from rest_framework import permissions
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from django.contrib import auth
 from users.serializer import RegisterSerializer
 
 
@@ -22,6 +22,9 @@ class RegisterGetTokenViewSet(mixins.CreateModelMixin, GenericViewSet):
 
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
+    def logout(self, request, *args, **kwargs):
+        auth.logout(request)
 
 
 # class RegisterUserView(APIView):

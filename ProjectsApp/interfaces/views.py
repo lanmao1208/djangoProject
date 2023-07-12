@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 
@@ -13,11 +12,7 @@ from envs.models import EnvsModels
 from interfaces import serializer
 from utils import common
 from djangoProject import settings
-
-
 # Create your views here.
-
-loggers = logging.getLogger('ProjectErrorLog')
 
 
 class InterfacesViewSet(viewsets.ModelViewSet):
@@ -46,24 +41,14 @@ class InterfacesViewSet(viewsets.ModelViewSet):
 
     @action(methods=['get'], detail=True)
     def testcases(self, request, *args, **kwargs):
-        # 自定义方法类
-        # instance = self.get_object()
-        # test_obj = self.get_serializer(instance=instance)
-        # testcases = test_obj.data['testcases']
-        # return Response(testcases)
-        # 拓展父类方法(推荐)
+        # 拓展父类方法
         response = self.retrieve(request, *args, **kwargs)
         response.data = response.data['testcases']
         return response
 
     @action(methods=['get'], detail=True)
     def configures(self, request, *args, **kwargs):
-        # 自定义方法类
-        # instance = self.get_object()
-        # conf_obj = self.get_serializer(instance=instance)
-        # configures = conf_obj.data['configures']
-        # return Response(configures)
-        # 拓展父类方法(推荐)
+        # 拓展父类方法
         response = self.retrieve(request, *args, **kwargs)
         response.data = response.data['configures']
         return response

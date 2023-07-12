@@ -1,10 +1,8 @@
 import os
 import json
-import logging
 from datetime import datetime
 
 from rest_framework.viewsets import ModelViewSet
-from rest_framework import permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from djangoProject.settings import SUITES_DIR
@@ -15,8 +13,6 @@ from utils import handle_datas, common
 from interfaces.models import InterfacesModels
 from envs.models import EnvsModels
 # Create your views here.
-
-loggers = logging.getLogger('ProjectErrorLog')
 
 
 class TestsuitsViewSet(ModelViewSet):
@@ -111,8 +107,6 @@ class TestsuitsViewSet(ModelViewSet):
     def run(self, request, *args, **kwargs):
         # 取出并构造参数
         instance = self.get_object()
-        # serializer = self.get_serializer(data=request.data)
-        # serializer.is_valid(raise_exception=True)
         response = super().create(request, *args, **kwargs)
         env_id = response.data.serializer.validated_data.get('env_id')
         testcase_dir_path = os.path.join(SUITES_DIR, datetime.strftime(datetime.now(), '%Y%m%d%H%M%S%f'))

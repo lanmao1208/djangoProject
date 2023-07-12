@@ -1,5 +1,3 @@
-import os
-import logging
 import json
 
 from rest_framework.viewsets import ModelViewSet
@@ -11,8 +9,6 @@ from .serializer import ConfiguresSerializer
 from interfaces.models import InterfacesModels
 from utils import handle_datas
 # Create your views here.
-
-loggers = logging.getLogger('ProjectErrorLog')
 
 
 class ConfiguresViewSet(ModelViewSet):

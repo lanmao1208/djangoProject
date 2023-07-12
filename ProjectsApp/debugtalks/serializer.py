@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from .models import DebugTalksModels
-from utils import common
 
 
 class DebugTalksSerializer(serializers.ModelSerializer):

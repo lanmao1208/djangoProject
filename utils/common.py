@@ -1,16 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
--------------------------------------------------
-  @Time : 2020/8/1 10:49 
-  @Auth : 可优
-  @File : common.py
-  @IDE  : PyCharm
-  @Motto: ABC(Always Be Coding)
-  @Email: keyou100@qq.com
-  @Company: 湖南省零檬信息技术有限公司
-  @Copyright: 柠檬班
--------------------------------------------------
-"""
 import json
 import locale
 import os
@@ -56,19 +44,26 @@ def create_report(runner, report_name=None):
     runner['html_report_name'] = report_name
 
     for item in runner['details']:
-        try:
-            for record in item['records']:
+        for record in item['records']:
+            try:
                 record['meta_datas']['data'][0]['response']['content'] = record['meta_datas']['data'][0]['response']['content']\
                     .decode('utf-8')
+            except Exception as e:
+                loggers.error(e)
+                pass
+            try:
                 record['meta_datas']['data'][0]['response']['cookies'] = dict(record['meta_datas']['data'][0]
                                                                               ['response']['cookies'])
+            except Exception as e:
+                loggers.error(e)
+                pass
+            try:
                 request_body = record['meta_datas']['data'][0]['response']['body']
                 if isinstance(request_body, bytes):
                     record['meta_datas']['data'][0]['response']['body'] = request_body.decode('utf-8')
-        except Exception as e:
-            loggers.error(e)
-            continue
-
+            except Exception as e:
+                loggers.error(e)
+                pass
     summary = json.dumps(runner, ensure_ascii=False)
 
     report_name = report_name + '_' + datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
@@ -123,6 +118,8 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     except Exception as e:
         loggers.error(e)
         config = {}
+        pass
+
     testcase_list.append(config)
 
     # 获取include信息
@@ -162,13 +159,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
         for testcase_id in include.get('testcases'):
             testcase_obj = TestcasesModels.objects.filter(id=testcase_id).first()
             testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
-            try:
-                testcase_request['test']['validate'][0]['expect'] = eval(
-                    testcase_request['test']['validate'][0]['expect'])
-            except Exception as e:
-                loggers.error(e)
-                testcase_list.append(testcase_request)
-                continue
+            testcase_list.append(testcase_request)
     try:
         # 可能存在异常数据,参数化状态码略过
         request['test']['validate'][0]['expect'] = eval(request['test']['validate'][0]['expect'])
@@ -201,7 +192,7 @@ def start_run_testcase(instance, testcase_dir_path):
         'id': report_id
         # 'id': 1
     }
-    return data
+    return Response(data)
 
 
 def move_old_file():
@@ -218,7 +209,7 @@ def move_old_file():
             remove_file = files[0]
             shutil.rmtree(os.path.join(dir_path, remove_file))
             files.remove(remove_file)
-        return True
+    return True
 
 
 # def run_testcase(instance, testcase_dir_path):
@@ -235,5 +226,5 @@ def run_testcase(instance, testcase_dir_path):
         f1 = e.submit(move_old_file,)
         f2 = e.submit(start_run_testcase, instance, testcase_dir_path)
         loggers.info(msg=r'文件清理{}'.format(f1.result()))
-        return Response(f2.result(), status=201)
+        return Response(f2.result().data)
 

@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 
@@ -17,8 +16,6 @@ from testcases.models import TestcasesModels
 from utils import common
 
 # Create your views here.
-
-loggers = logging.getLogger('ProjectErrorLog')
 
 
 class ProjectsViewSet(viewsets.ModelViewSet):
@@ -77,15 +74,6 @@ class ProjectsViewSet(viewsets.ModelViewSet):
 
     @action(detail=True)
     def interfaces(self, request, *args, **kwargs):
-        # qs = self.get_object()
-        # pro_obj = InterfacesModels.objects.filter(project=qs)
-        # page = self.paginate_queryset(pro_obj)
-        # if page is not None:
-        #     pro_obj = self.get_serializer(instance=page, many=True)
-        #     return self.get_paginated_response(pro_obj.data)
-        # pro_obj = self.get_serializer(instance=qs, many=True)
-        # loggers.debug(pro_obj.data)
-        # return Response(pro_obj.data)
         response = self.retrieve(request, *args, **kwargs)
         response.data = response.data['interfaces']
         return response

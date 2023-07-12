@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 
@@ -15,8 +14,6 @@ from djangoProject import settings
 from utils import common
 
 # Create your views here.
-
-loggers = logging.getLogger('ProjectErrorLog')
 
 
 class TestsuitsViewSet(ModelViewSet):
