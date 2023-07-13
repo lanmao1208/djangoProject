@@ -8,7 +8,7 @@ import logging
 from datetime import datetime
 # from threading import Thread
 from natsort import natsorted
-from concurrent.futures import ThreadPoolExecutor
+from concurrent import futures
 
 from djangoProject.settings import REPORTS_DIR, SUITES_DIR
 from rest_framework.response import Response
@@ -221,10 +221,33 @@ def move_old_file():
 #     return Response(ret_values[0], status=201)
 
 def run_testcase(instance, testcase_dir_path):
+    # 将测试用例以接口为单位划分任务目标
+    files = os.listdir(testcase_dir_path)[0]
+    files_dir = os.path.join(testcase_dir_path, files)
+    files_list = os.listdir(files_dir)
     # 多线程运行
-    with ThreadPoolExecutor(max_workers=2) as e:
-        f1 = e.submit(move_old_file,)
-        f2 = e.submit(start_run_testcase, instance, testcase_dir_path)
+    # with ThreadPoolExecutor(max_workers=40) as e:
+    #     f1 = e.submit(move_old_file,)
+    #     loggers.info(msg=r'文件清理{}'.format(f1.result()))
+    #     for files_path in files_list:
+    #         f2 = e.submit(start_run_testcase, instance, os.path.join(files_dir,files_path))
+    #     return Response(f2.result().data)
+    test_results = []
+    with futures.ThreadPoolExecutor(max_workers=40) as executors:
+        # 定量清理日志
+        f1 = executors.submit(move_old_file, )
         loggers.info(msg=r'文件清理{}'.format(f1.result()))
-        return Response(f2.result().data)
+        # 运行测试用例
+        future_results = {
+            executors.submit(
+                start_run_testcase, instance, os.path.join(files_dir, files_path)
+                             ): files_path for files_path in files_list
+        }
+        for future in futures.as_completed(future_results):
+            testcase = future_results[future]
+            if future.result().wasSuccessful():
+                test_results.append((testcase, future.result()))
+            else:
+                test_results.insert(0, (testcase, future.result()))
+    return test_results
 
