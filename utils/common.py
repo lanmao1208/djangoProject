@@ -45,18 +45,18 @@ def create_report(runner, report_name=None):
 
     for item in runner['details']:
         for record in item['records']:
-            try:
-                record['meta_datas']['data'][0]['response']['content'] = record['meta_datas']['data'][0]['response']['content']\
-                    .decode('utf-8')
-            except Exception as e:
-                loggers.error(e)
-                pass
-            try:
-                record['meta_datas']['data'][0]['response']['cookies'] = dict(record['meta_datas']['data'][0]
-                                                                              ['response']['cookies'])
-            except Exception as e:
-                loggers.error(e)
-                pass
+            # try:
+            #     record['meta_datas']['data'][0]['response']['content'] = \
+            #         record['meta_datas']['data'][0]['response']['content'].decode('utf-8')
+            # except Exception as e:
+            #     loggers.error(e)
+            #     pass
+            # try:
+            #     record['meta_datas']['data'][0]['response']['cookies'] = eval(record['meta_datas']['data'][0]
+            #                                                                   ['response']['cookies'])
+            # except Exception as e:
+            #     loggers.error(e)
+            #     pass
             try:
                 request_body = record['meta_datas']['data'][0]['response']['body']
                 if isinstance(request_body, bytes):
@@ -226,28 +226,11 @@ def run_testcase(instance, testcase_dir_path):
     files_dir = os.path.join(testcase_dir_path, files)
     files_list = os.listdir(files_dir)
     # 多线程运行
-    # with ThreadPoolExecutor(max_workers=40) as e:
-    #     f1 = e.submit(move_old_file,)
-    #     loggers.info(msg=r'文件清理{}'.format(f1.result()))
-    #     for files_path in files_list:
-    #         f2 = e.submit(start_run_testcase, instance, os.path.join(files_dir,files_path))
-    #     return Response(f2.result().data)
-    test_results = []
-    with futures.ThreadPoolExecutor(max_workers=40) as executors:
-        # 定量清理日志
-        f1 = executors.submit(move_old_file, )
+    with futures.ThreadPoolExecutor(max_workers=40) as e:
+        f1 = e.submit(move_old_file,)
         loggers.info(msg=r'文件清理{}'.format(f1.result()))
-        # 运行测试用例
-        future_results = {
-            executors.submit(
-                start_run_testcase, instance, os.path.join(files_dir, files_path)
-                             ): files_path for files_path in files_list
-        }
-        for future in futures.as_completed(future_results):
-            testcase = future_results[future]
-            if future.result().wasSuccessful():
-                test_results.append((testcase, future.result()))
-            else:
-                test_results.insert(0, (testcase, future.result()))
-    return test_results
+        for files_path in files_list:
+            f2 = e.submit(start_run_testcase, instance, os.path.join(files_dir, files_path))
+        return Response(f2.result().data)
+
 
