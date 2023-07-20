@@ -5,15 +5,14 @@ import os
 import shutil
 import yaml
 import logging
+import pytest
 from datetime import datetime
-# from threading import Thread
 from natsort import natsorted
 from concurrent import futures
 
-from djangoProject.settings import REPORTS_DIR, SUITES_DIR
+from djangoProject.settings import REPORTS_DIR, SUITES_DIR, DEBUGTALK_DIR
 from rest_framework.response import Response
-from httprunner.api import HttpRunner
-from httprunner.report import gen_html_report
+from httprunner import (HttpRunner, Config, Step, RunRequest, RunTestCase, make)
 
 from debugtalks.models import DebugTalksModels
 from configures.models import ConfiguresModels
@@ -28,63 +27,64 @@ def datetime_fmt():
     return '%Y年%m月%d日 %H:%M:%S'
 
 
-def create_report(runner, report_name=None):
-    """
-    创建测试报告
-    :param runner:
-    :param report_name:
-    :return:
-    """
-    time_stamp = int(runner["time"]["start_at"])
-    start_datetime = datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
-    runner['time']['start_datetime'] = start_datetime
-    # duration保留3位小数
-    runner['time']['duration'] = round(runner['time']['duration'], 3)
-    report_name = report_name if report_name else start_datetime
-    runner['html_report_name'] = report_name
-
-    for item in runner['details']:
-        for record in item['records']:
-            # try:
-            #     record['meta_datas']['data'][0]['response']['content'] = \
-            #         record['meta_datas']['data'][0]['response']['content'].decode('utf-8')
-            # except Exception as e:
-            #     loggers.error(e)
-            #     pass
-            # try:
-            #     record['meta_datas']['data'][0]['response']['cookies'] = eval(record['meta_datas']['data'][0]
-            #                                                                   ['response']['cookies'])
-            # except Exception as e:
-            #     loggers.error(e)
-            #     pass
-            try:
-                request_body = record['meta_datas']['data'][0]['response']['body']
-                if isinstance(request_body, bytes):
-                    record['meta_datas']['data'][0]['response']['body'] = request_body.decode('utf-8')
-            except Exception as e:
-                loggers.error(e)
-                pass
-    summary = json.dumps(runner, ensure_ascii=False)
-
-    report_name = report_name + '_' + datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
-    html_name = os.path.join(REPORTS_DIR, report_name)
-    report_path = gen_html_report(runner, report_dir=html_name)
-
-    with open(report_path, encoding='utf-8') as stream:
-        reports = stream.read()
-
-    test_report = {
-        'name': report_name,
-        'result': runner.get('success'),
-        'success': runner.get('stat')['testcases']['success'],
-        'count': runner.get('stat')['testcases']['total'],
-        'html': reports,
-        'summary': summary
-        # 'summary': reports
-    }
-    report_obj = ReportsModels.objects.create(**test_report)
-
-    return report_obj.id
+# def create_report(runner_obj, report_name=None):
+#     """
+#     创建测试报告
+#     :param runner:
+#     :param report_name:
+#     :return:
+#     """
+#     runner = runner_obj.get_summary()
+#     time_stamp = int(runner["time"]["start_at"])
+#     start_datetime = datetime.fromtimestamp(time_stamp).strftime('%Y-%m-%d %H:%M:%S')
+#     runner['time']['start_datetime'] = start_datetime
+#     # duration保留3位小数
+#     runner['time']['duration'] = round(runner['time']['duration'], 3)
+#     report_name = report_name if report_name else start_datetime
+#     runner['html_report_name'] = report_name
+#
+#     for item in runner['details']:
+#         for record in item['records']:
+#             # try:
+#             #     record['meta_datas']['data'][0]['response']['content'] = \
+#             #         record['meta_datas']['data'][0]['response']['content'].decode('utf-8')
+#             # except Exception as e:
+#             #     loggers.error(e)
+#             #     pass
+#             # try:
+#             #     record['meta_datas']['data'][0]['response']['cookies'] = eval(record['meta_datas']['data'][0]
+#             #                                                                   ['response']['cookies'])
+#             # except Exception as e:
+#             #     loggers.error(e)
+#             #     pass
+#             try:
+#                 request_body = record['meta_datas']['data'][0]['response']['body']
+#                 if isinstance(request_body, bytes):
+#                     record['meta_datas']['data'][0]['response']['body'] = request_body.decode('utf-8')
+#             except Exception as e:
+#                 loggers.error(e)
+#                 pass
+#     summary = json.dumps(runner, ensure_ascii=False)
+#
+#     report_name = report_name + '_' + datetime.strftime(datetime.now(), '%Y%m%d%H%M%S')
+#     html_name = os.path.join(REPORTS_DIR, report_name)
+#
+#
+#     # with open(report_path, encoding='utf-8') as stream:
+#     #     reports = stream.read()
+#
+#     test_report = {
+#         'name': report_name,
+#         'result': runner.get('success'),
+#         'success': runner.get('stat')['testcases']['success'],
+#         'count': runner.get('stat')['testcases']['total'],
+#         # 'html': reports,
+#         'summary': summary
+#         # 'summary': reports
+#     }
+#     report_obj = ReportsModels.objects.create(**test_report)
+#
+#     return report_obj.id
 
 
 def generate_testcase_file(instance, env, testcase_dir_path):
@@ -99,7 +99,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
     :param testcase_dir_path:
     :return:
     """
-    testcase_list = []
+    testcase_list = {}
 
     configures_results = ConfiguresModels.objects.filter(id=json.loads(instance.include)['config'])
     try:
@@ -120,7 +120,7 @@ def generate_testcase_file(instance, env, testcase_dir_path):
         config = {}
         pass
 
-    testcase_list.append(config)
+    testcase_list['config'] = config['config']
 
     # 获取include信息
     include = json.loads(instance.include, encoding='utf-8')
@@ -138,12 +138,15 @@ def generate_testcase_file(instance, env, testcase_dir_path):
         # 生成debugtalk.py文件，放到项目根目录下
         debugtalk_obj = DebugTalksModels.objects.filter(project__name=project_name).first()
         debugtalk = debugtalk_obj.debugtalk if debugtalk_obj else ''
+
         with open(os.path.join(testcase_dir_path, 'debugtalk.py'), 'w', encoding='utf-8') as f:
             f.write(debugtalk)
+        with open(DEBUGTALK_DIR, 'w', encoding='utf-8') as f:
+            f.write(debugtalk)
 
-    testcase_dir_path = os.path.join(testcase_dir_path, interface_name)
-    if not os.path.exists(testcase_dir_path):
-        os.makedirs(testcase_dir_path)
+    testcase_interfaces_dir_path = os.path.join(testcase_dir_path, interface_name)
+    if not os.path.exists(testcase_interfaces_dir_path):
+        os.makedirs(testcase_interfaces_dir_path)
 
     # {"config":1,"testcases":[1,2,3]}
     if 'config' in include:
@@ -152,53 +155,42 @@ def generate_testcase_file(instance, env, testcase_dir_path):
         if config_obj:
             config_request = json.loads(config_obj.request, encoding='utf-8')
             config_request['config']['base_url'] = env.base_url if env else ''
-            testcase_list[0] = config_request
+            testcase_list['config'] = config_request['config']
 
+    testcase_list['teststeps'] = []
     # 处理前置用例
     if 'testcases' in include:
         for testcase_id in include.get('testcases'):
             testcase_obj = TestcasesModels.objects.filter(id=testcase_id).first()
             testcase_request = json.loads(testcase_obj.request, encoding='utf-8')
-            testcase_list.append(testcase_request)
-    try:
-        # 可能存在异常数据,参数化状态码略过
-        request['test']['validate'][0]['expect'] = eval(request['test']['validate'][0]['expect'])
-    except Exception as e:
-        loggers.error(e)
-        pass
+            validate = testcase_request['testcases'].pop('validate')
+            testcase_request['testcases']['request']['validate'] = validate
+            # if 'variables' in testcase_request['testcases']:
+            #     variables = testcase_request['testcases'].pop('variables')
+            #     testcase_request['testcases']['variables'] = variables[0]
+            testcase_list['teststeps'].append = testcase_request['testcases']
+
+    validate = request['testcases'].pop('validate')
+    request['testcases']['request']['validate'] = validate
     # 把当前需要执行的用例追加到testcase_list最后
-    testcase_list.append(request)
+    if 'parameters' in request['testcases']:
+        parameters = request['testcases'].pop('parameters')
+        testcase_list['config']['parameters'] = parameters[0]
+        testcase_list['teststeps'].append(request['testcases'])
+    # if 'variables' in request['testcases']:
+    #     variables = request['testcases'].pop('variables')
+    #     request['testcases']['variables'] = variables[0]
+    else:
+        testcase_list['testcases'] = request['testcases']
 
-    with open(os.path.join(testcase_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
+    with open(os.path.join(testcase_interfaces_dir_path, instance.name + '.yaml'), 'w', encoding='utf-8') as f:
         yaml.dump(testcase_list, f, allow_unicode=True)
-
-
-def start_run_testcase(instance, testcase_dir_path):
-    # 1、运行用例
-    runner = HttpRunner()
-    try:
-        # 下一步多线程优化
-        summary = runner.run(testcase_dir_path)
-    except Exception as e:
-        loggers.error(e)
-        res = {'ret': False, 'msg': '用例执行失败'}
-        return Response(res, status=400)
-
-    # 2、创建报告
-    report_id = create_report(summary, instance.name)
-
-    # 3、用例运行成功之后，需要把生成的报告id返回
-    data = {
-        'id': report_id
-        # 'id': 1
-    }
-    return Response(data)
 
 
 def move_old_file():
     # 需要清理的目录
-    DIR_list = [REPORTS_DIR, SUITES_DIR]
-    for dir_path in DIR_list:
+    dir_list = [REPORTS_DIR, SUITES_DIR]
+    for dir_path in dir_list:
         # 获取目录中的所有文件和子目录
         files = os.listdir(dir_path)
         # 如果目录下文件大于5则进行自动删除操作
@@ -213,24 +205,60 @@ def move_old_file():
 
 
 # def run_testcase(instance, testcase_dir_path):
+#     # 将测试用例以接口为单位划分任务目标
+#     files = os.listdir(testcase_dir_path)[0]
+#     files_dir = os.path.join(testcase_dir_path, files)
+#     files_list = os.listdir(files_dir)
+#     files_list.remove('debugtalk.py')
+#     pytest_files_dir = make.main_make(files_list)
 #     # 多线程运行
-#     Thread_run_testcase = Thread(target=start_run_testcase, args=(instance, testcase_dir_path))
-#     Thread_move_report = Thread(target=move_old_file)
-#     Thread_move_report.start()
-#     Thread_run_testcase.start()
-#     return Response(ret_values[0], status=201)
+#     with futures.ThreadPoolExecutor(max_workers=40) as e:
+#         f1 = e.submit(move_old_file,)
+#         loggers.info(msg=r'文件清理{}'.format(f1.result()))
+#         for pytest_case in pytest_files_dir:
+#             f2 = e.submit(start_run_testcase, pytest_case)
+#         return Response(f2.result())
 
-def run_testcase(instance, testcase_dir_path):
+def run_testcase(testcase_dir_path, Threads_number=10):
     # 将测试用例以接口为单位划分任务目标
-    files = os.listdir(testcase_dir_path)[0]
-    files_dir = os.path.join(testcase_dir_path, files)
-    files_list = os.listdir(files_dir)
-    # 多线程运行
-    with futures.ThreadPoolExecutor(max_workers=40) as e:
-        f1 = e.submit(move_old_file,)
-        loggers.info(msg=r'文件清理{}'.format(f1.result()))
-        for files_path in files_list:
-            f2 = e.submit(start_run_testcase, instance, os.path.join(files_dir, files_path))
-        return Response(f2.result().data)
+    files_dir_list = testcases_file_list(testcase_dir_path)
+    # 目前只支持单项目运行
+    make.main_make(files_dir_list)
+    repotr_dir = os.path.join(REPORTS_DIR, datetime.strftime(datetime.now(), '%Y%m%d%H%M%S%f'))
+    repotrfile_dir = os.path.join(repotr_dir, 'report_html.html')
+    pytest.main(
+        [files_dir_list[0],  # 测试用例
+         # 生成测试报告 生成assert存放的css文件和html文件
+         "--html={}".format(repotrfile_dir),
+         "--self-contained-html",  # 把css样式合并到html里 仅生成html文件
+         '-n={}'.format(Threads_number)  # 多线程,线程数默认为40
+         ])
+    report_id = create_report(repotrfile_dir, report_name=files_dir_list[0])
+    data = {
+        "id": report_id
+    }
+    return Response(data, status=201)
 
 
+def testcases_file_list(dir_path):
+    files = os.listdir(dir_path)
+    files[0] = os.path.join(dir_path, files[0])
+    return files
+
+
+def create_report(report_dir, report_name=None):
+    with open(report_dir, 'r', encoding='utf-8') as f:
+        report_data = f.read()
+
+    test_report = {
+        'name': report_name,
+        'result': True,
+        'success': 0,
+        'count': 0,
+        'html': report_data,
+        'summary': " "
+        # 'summary': reports
+    }
+    report_obj = ReportsModels.objects.create(**test_report)
+
+    return report_obj.id

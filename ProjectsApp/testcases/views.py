@@ -116,10 +116,9 @@ class TestsuitsViewSet(ModelViewSet):
         env = EnvsModels.objects.filter(id=env_id).first()
         # 生成yaml用例文件
         common.generate_testcase_file(instance, env, testcase_dir_path)
-
         # 运行用例（生成报告）
         # common.run_testcase(instance, testcase_dir_path)
-        return common.run_testcase(instance, testcase_dir_path)
+        return common.run_testcase(testcase_dir_path)
 
     def get_serializer_class(self):
         if self.action == 'run':

@@ -7,22 +7,22 @@ import random
 import string
 import time
 
-from httprunner.compat import builtin_str, integer_types
 from httprunner.exceptions import ParamsError
 
 
 def gen_random_string(str_len):
     """ generate random string with specified length
     """
-    return ''.join(
-        random.choice(string.ascii_letters + string.digits) for _ in range(str_len))
+    return "".join(
+        random.choice(string.ascii_letters + string.digits) for _ in range(str_len)
+    )
 
 
 def get_timestamp(str_len=13):
     """ get timestamp string, length can only between 0 and 16
     """
-    if isinstance(str_len, integer_types) and 0 < str_len < 17:
-        return builtin_str(time.time()).replace(".", "")[:str_len]
+    if isinstance(str_len, int) and 0 < str_len < 17:
+        return str(time.time()).replace(".", "")[:str_len]
 
     raise ParamsError("timestamp length can only between 0 and 16.")
 
@@ -37,4 +37,3 @@ def sleep(n_secs):
     """ sleep n seconds
     """
     time.sleep(n_secs)
-
